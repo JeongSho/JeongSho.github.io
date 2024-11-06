@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas 이미지 위에 색칠하기</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        canvas {
+            border: 1px solid #000;
+            margin-top: 10px;
+        }
+        .palette {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            border: 2px solid #000;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="palette">
+    <div class="color-swatch" style="background-color: red;" data-color="red"></div>
+    <div class="color-swatch" style="background-color: blue;" data-color="blue"></div>
+    <div class="color-swatch" style="background-color: green;" data-color="green"></div>
+    <div class="color-swatch" style="background-color: yellow;" data-color="yellow"></div>
+    <div class="color-swatch" style="background-color: purple;" data-color="purple"></div>
+    <div class="color-swatch" style="background-color: orange;" data-color="orange"></div>
+</div>
+
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const gridSize = 150;
+    let selectedColor = 'red';
+
+    // 이미지 불러오기
+    const img = new Image();
+    img.src = './imgs/8563686.jpg';
+    img.onload = function() {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        //drawGrid(); // 이미지 위에 격자 그리기
+    };
+
+    // 색상 팔레트 클릭 이벤트
+    document.querySelectorAll('.color-swatch').forEach(swatch => {
+        swatch.addEventListener('click', (event) => {
+            selectedColor = event.target.getAttribute('data-color');
+            document.querySelectorAll('.color-swatch').forEach(s => s.style.border = '2px solid #000');
+            event.target.style.border = '2px solid #fff';
+        });
+    });
+
+    // 격자 그리기
+    function drawGrid() {
+        for (let x = 0; x < canvas.width; x += gridSize) {
+            for (let y = 0; y < canvas.height; y += gridSize) {
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+                ctx.strokeRect(x, y, gridSize, gridSize);
+            }
+        }
+    }
+
+    // 클릭한 위치의 격자에 색칠하기
+    canvas.addEventListener('click', (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((event.clientX - rect.left) / gridSize) * gridSize;
+        const y = Math.floor((event.clientY - rect.top) / gridSize) * gridSize;
+
+        ctx.fillStyle = selectedColor;
+        ctx.fillRect(x, y, gridSize, gridSize);
+        ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+        ctx.strokeRect(x, y, gridSize, gridSize);
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas 이미지 색칠 게임</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        canvas {
+            border: 1px solid #000;
+            margin-top: 10px;
+        }
+        .palette {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            border: 2px solid #000;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="palette">
+    <div class="color-swatch" style="background-color: red;" data-color="red"></div>
+    <div class="color-swatch" style="background-color: blue;" data-color="blue"></div>
+    <div class="color-swatch" style="background-color: green;" data-color="green"></div>
+    <div class="color-swatch" style="background-color: yellow;" data-color="yellow"></div>
+    <div class="color-swatch" style="background-color: purple;" data-color="purple"></div>
+    <div class="color-swatch" style="background-color: orange;" data-color="orange"></div>
+</div>
+
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const gridSize = 50; // 격자 크기
+    let selectedColor = 'red'; // 초기 선택 색상
+
+    // 이미지 불러오기
+    const img = new Image();
+    img.src = './imgs/8563686.jpg';
+    img.onload = function() {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+
+    // 색상 팔레트 클릭 이벤트 설정
+    document.querySelectorAll('.color-swatch').forEach(swatch => {
+        swatch.addEventListener('click', (event) => {
+            selectedColor = event.target.getAttribute('data-color');
+            // 선택한 색상 강조 표시
+            document.querySelectorAll('.color-swatch').forEach(s => s.style.border = '2px solid #000');
+            event.target.style.border = '2px solid #fff';
+        });
+    });
+
+    // 클릭한 위치의 격자에 색칠하기
+    canvas.addEventListener('click', (event) => {
+        // 캔버스 내 클릭 좌표를 격자 크기로 맞추기
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((event.clientX - rect.left) / gridSize) * gridSize;
+        const y = Math.floor((event.clientY - rect.top) / gridSize) * gridSize;
+
+        // 이미지 다시 그리기 (이전 칠한 부분만 덮기 위해)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // 선택된 격자 위치에 색상 칠하기
+        ctx.fillStyle = selectedColor;
+        ctx.fillRect(x, y, gridSize, gridSize);
+    });
+</script>
+
+</body>
+</html>
