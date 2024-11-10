@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhysicsJS Circle Simulation</title>
+    <style>
+        /* 캔버스 스타일 설정 */
+        #viewport {
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 캔버스 영역 -->
+    <canvas id="viewport"></canvas>
+
+    <!-- PhysicsJS 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/physicsjs/0.7.0/physicsjs-full.min.js"></script>
+
+    <!-- 물리 시뮬레이션 코드 -->
+    <script>
+        Physics(function(world) {
+            // 1. 보여지는 영역의 높이, 너비 설정
+            var viewWidth = 500;
+            var viewHeight = 300;
+
+            // 2. 뷰포트 설정
+            var renderer = Physics.renderer('canvas', {
+                el: 'viewport',
+                width: viewWidth,
+                height: viewHeight,
+                meta: false,
+                styles: {
+                    'circle': {
+                        strokeStyle: '#351024',
+                        lineWidth: 1,
+                        fillStyle: '#d33682',
+                        angleIndicator: '#351024'
+                    }
+                }
+            });
+
+            // 3. 랜더러 추가
+            world.add(renderer);
+            // 4. 각 step마다 렌더링
+            world.on('step', function() {
+                world.render();
+            });
+
+            // 5. 창의 경계 설정
+            var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+
+            // 6. 경계 내에서 객체 제어
+            world.add(Physics.behavior('edge-collision-detection', {
+                aabb: viewportBounds,
+                restitution: 0.99,
+                cof: 0.99
+            }));
+
+            // 7. 원 추가
+            world.add(
+                Physics.body('circle', {
+                    x: 50, // x 좌표
+                    y: 30, // y 좌표
+                    vx: 0.2, // x 방향 속도
+                    vy: 0.01, // y 방향 속도
+                    radius: 20
+                })
+            );
+
+            // 8. 객체가 충돌할 때 반응하게 설정
+            world.add(Physics.behavior('body-impulse-response'));
+
+            // 9. 중력 추가
+            world.add(Physics.behavior('constant-acceleration'));
+
+            // 10. ticker를 구독하여 시뮬레이션 진행
+            Physics.util.ticker.on(function(time, dt) {
+                world.step(time);
+            });
+
+            // 11. ticker 시작
+            Physics.util.ticker.start();
+        });
+    </script>
+</body>
+</html>
