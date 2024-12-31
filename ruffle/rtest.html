@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Ruffle Player</title>
+        <link rel="stylesheet" href="css/lato.css">
+        <link rel="stylesheet" href="css/common.css">
+        <link rel="stylesheet" href="css/player.css">
+        <link rel="icon" href="images/icon32.png" sizes="32x32">
+        <link rel="icon" href="images/icon64.png" sizes="64x64">
+        <link rel="icon" href="images/icon180.png" sizes="180x180">
+    </head>
+    <body>
+        <script>
+            window.RufflePlayer = window.RufflePlayer || {};
+            window.addEventListener("load", (event) => {
+                const ruffle = window.RufflePlayer.newest();
+                const player = ruffle.createPlayer();
+                const container = document.getElementById("container");
+                container.appendChild(player);
+                player.ruffle().load("amy.swf");
+            });
+        </script>
+        <script src="./dist/ruffle.js"></script>
+    </body>
+</html>
+
