@@ -13,17 +13,9 @@
         <link rel="icon" href="images/icon180.png" sizes="180x180">
     </head>
     <body>
-        <script>
-            window.RufflePlayer = window.RufflePlayer || {};
-            window.addEventListener("load", (event) => {
-                const ruffle = window.RufflePlayer.newest();
-                const player = ruffle.createPlayer();
-                const container = document.getElementById("container");
-                container.appendChild(player);
-                player.ruffle().load("amy.swf");
-            });
-        </script>
+        
         <script src="ruffle.js"></script>
+        <p style="text-align: center;"><embed src="amy.swf" width = "600" height = "800"></p>"
     </body>
 </html>
 
