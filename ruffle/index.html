@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+<body>
+    <h1>File Upload</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" id="fileInput" multiple>
+        <button type="submit">Upload</button>
+    </form>
+    <h2>Uploaded Files</h2>
+    <ul id="fileList"></ul>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileList = document.getElementById('fileList');
+
+        // 업로드 후 파일 리스트를 업데이트
+        async function fetchFileList() {
+            const response = await fetch('./files'); // 서버에서 파일 목록 요청
+            const files = await response.json();
+            fileList.innerHTML = '';
+            files.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file;
+                fileList.appendChild(li);
+            });
+        }
+
+        // 폼 제출 이벤트 처리
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData();
+            const files = document.getElementById('fileInput').files;
+
+            for (let i = 0; i < files.length; i++) {
+                formData.append('file', files[i]);
+            }
+
+            await fetch('./upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            fetchFileList(); // 파일 업로드 후 목록 갱신
+        });
+
+        // 페이지 로드 시 파일 목록 표시
+        fetchFileList();
+    </script>
+</body>
+</html>
