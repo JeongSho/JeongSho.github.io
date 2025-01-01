@@ -1,92 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SWF Loader</title>
-    <link rel="stylesheet" href="css/lato.css">
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/player.css">
-    <link rel="icon" href="images/icon32.png" sizes="32x32">
-    <link rel="icon" href="images/icon64.png" sizes="64x64">
-    <link rel="icon" href="images/icon180.png" sizes="180x180">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWF Player</title>
     <style>
         body {
-            font-family: 'Lato', sans-serif;
+            font-family: Arial, sans-serif;
             text-align: center;
+            margin: 0;
+            padding: 0;
         }
-        ul {
+        #swf-list {
             list-style: none;
             padding: 0;
         }
-        li {
+        #swf-list li {
             margin: 10px 0;
             cursor: pointer;
-        }
-        li:hover {
+            color: blue;
             text-decoration: underline;
         }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            margin-top: 20px;
-        }
         #swf-player {
-            margin-right: 20px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <h1>SWF Player</h1>
-    <div class="container">
-        <div id="swf-player" style="width: 600px; height: 800px;"></div>
-        <div>
-            <p>Select an SWF file to play:</p>
-            <ul id="swf-list"></ul>
-        </div>
-    </div>
+    <p>Select a SWF file to play:</p>
+    <ul id="swf-list"></ul>
+    <div id="swf-player"></div>
 
-    <script src="https://jeongsho.github.io/ruffle/ruffle.js"></script>
     <script>
-        // JSON 파일 경로
-        const swfListJson = "https://jeongsho.github.io/ruffle/swf_list.json";
-        const swfFolder = "https://jeongsho.github.io/ruffle/swf_file";
+        const swfListJson = "swf_list.json";
+        const swfFolder = "swf_file";
 
-        // Fetch SWF file list from JSON
-        async function fetchSwfList() {
+        async function loadSwfList() {
             try {
                 const response = await fetch(swfListJson);
                 if (!response.ok) throw new Error("Failed to load SWF list.");
                 const data = await response.json();
 
-                displaySwfList(data.files);
+                populateSwfList(data.files);
             } catch (error) {
                 console.error("Error fetching SWF list:", error);
             }
         }
 
-        // Display SWF file list
-        function displaySwfList(swfFiles) {
+        function populateSwfList(files) {
             const swfList = document.getElementById("swf-list");
-            swfFiles.forEach(file => {
+            files.forEach(file => {
                 const listItem = document.createElement("li");
-                listItem.textContent = file;
-                listItem.onclick = () => playSwf(file);
+                listItem.textContent = file.name;
+                listItem.addEventListener("click", () => playSwf(file));
                 swfList.appendChild(listItem);
             });
         }
 
-        // Play selected SWF file
         function playSwf(file) {
             const playerContainer = document.getElementById("swf-player");
-            playerContainer.innerHTML = `<embed src="${swfFolder}/${file}" width="600" height="800"></embed>`;
+            playerContainer.innerHTML = `
+                <embed 
+                    src="${swfFolder}/${file.name}" 
+                    width="${file.width}" 
+                    height="${file.height}">
+                </embed>
+            `;
         }
 
-        // Initialize SWF list
-        fetchSwfList();
+        loadSwfList();
     </script>
 </body>
 </html>
-
-
