@@ -39,7 +39,7 @@
     <script src="ruffle.js"></script>
     <script>
         // SWF file folder
-        const swfFolder = "swf_file";
+        const swfFolder = "https://jeongsho.github.io/ruffle/swf_file";
 
         // Fetch SWF file list from the server
         async function fetchSwfList() {
@@ -65,7 +65,7 @@
 
         // Display SWF file list
         function displaySwfList(swfFiles) {
-            const swfList = document.getElementById("./swf-list");
+            const swfList = document.getElementById("swf-list");
             swfFiles.forEach(file => {
                 const listItem = document.createElement("li");
                 listItem.textContent = file;
