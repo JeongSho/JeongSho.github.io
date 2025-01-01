@@ -1,9 +1,9 @@
 {
     "files": [
-      "amy.swf",
-      "ex1.swf",
-      "ex2.swf",
-      "ex3.swf"
+      "./swf_file/amy.swf",
+      "./swf_file/ex1.swf",
+      "./swf_file/ex2.swf",
+      "./swf_file/ex3.swf"
     ]
   }
   
