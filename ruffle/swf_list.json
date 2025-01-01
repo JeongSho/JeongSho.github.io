@@ -2,7 +2,9 @@
   {
     "files": [
       { "name": "amy.swf", "width": 600, "height": 800 },
-      { "name": "phyong.swf", "width": 520, "height": 925 },
-      { "name": "체인지 히어로-110410.swf", "width": 800, "height": 600 }
+      { "name": "phyong.swf", "width": 416, "height": 740 },
+      { "name": "체인지 히어로-110410.swf", "width": 800, "height": 600 },
+      { "name": "에일리언헌터2s-120203_forGomsee_2.swf", "width": 640, "height": 480 }
+    
     ]
   }
