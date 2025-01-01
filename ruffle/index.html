@@ -26,21 +26,32 @@
         li:hover {
             text-decoration: underline;
         }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        #swf-player {
+            margin-right: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>SWF Player</h1>
-    <div id="player-container">
-        <p>Select an SWF file to play:</p>
-        <ul id="swf-list"></ul>
-        <div id="swf-player" style="margin-top: 20px;"></div>
+    <div class="container">
+        <div id="swf-player" style="width: 600px; height: 800px;"></div>
+        <div>
+            <p>Select an SWF file to play:</p>
+            <ul id="swf-list"></ul>
+        </div>
     </div>
 
-    <script src="ruffle.js"></script>
+    <script src="https://jeongsho.github.io/ruffle/ruffle.js"></script>
     <script>
         // JSON 파일 경로
-        const swfListJson = "swf_list.json";
-        const swfFolder = "swf_file";
+        const swfListJson = "https://jeongsho.github.io/ruffle/swf_list.json";
+        const swfFolder = "https://jeongsho.github.io/ruffle/swf_file";
 
         // Fetch SWF file list from JSON
         async function fetchSwfList() {
@@ -77,3 +88,5 @@
     </script>
 </body>
 </html>
+
+
