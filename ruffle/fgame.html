@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SWF Loader</title>
+    <link rel="stylesheet" href="css/lato.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/player.css">
+    <link rel="icon" href="images/icon32.png" sizes="32x32">
+    <link rel="icon" href="images/icon64.png" sizes="64x64">
+    <link rel="icon" href="images/icon180.png" sizes="180x180">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            text-align: center;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        li:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>SWF Player</h1>
+    <div id="player-container">
+        <p>Select an SWF file to play:</p>
+        <ul id="swf-list"></ul>
+        <div id="swf-player" style="margin-top: 20px;"></div>
+    </div>
+
+    <script src="ruffle.js"></script>
+    <script>
+        // SWF file folder
+        const swfFolder = "swf_file";
+
+        // Fetch SWF file list from the server
+        async function fetchSwfList() {
+            try {
+                const response = await fetch(swfFolder);
+                if (!response.ok) throw new Error("Failed to load SWF files.");
+                const text = await response.text();
+
+                // Parse the folder content as HTML to extract file names
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, "text/html");
+                const links = doc.querySelectorAll("a");
+
+                const swfFiles = Array.from(links)
+                    .map(link => link.getAttribute("href"))
+                    .filter(file => file.endsWith(".swf"));
+
+                displaySwfList(swfFiles);
+            } catch (error) {
+                console.error("Error fetching SWF files:", error);
+            }
+        }
+
+        // Display SWF file list
+        function displaySwfList(swfFiles) {
+            const swfList = document.getElementById("swf-list");
+            swfFiles.forEach(file => {
+                const listItem = document.createElement("li");
+                listItem.textContent = file;
+                listItem.onclick = () => playSwf(file);
+                swfList.appendChild(listItem);
+            });
+        }
+
+        // Play selected SWF file
+        function playSwf(file) {
+            const playerContainer = document.getElementById("swf-player");
+            playerContainer.innerHTML = `<embed src="${swfFolder}/${file}" width="600" height="800"></embed>`;
+        }
+
+        // Initialize SWF list
+        fetchSwfList();
+    </script>
+</body>
+</html>
