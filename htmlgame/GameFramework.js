@@ -21,14 +21,10 @@ function onPageLoadComplete()
 
 
  // SVG 이미지 로드
- const img = new Image();
- let imgLoaded = false;
-
- img.onload = function () {
-    imgLoaded = true;
-    ctx.drawImage(img, temp_text_x, temp_text_y, 100, 100); // SVG 렌더링
-   
- };
+ var img = new Image();
+ img.onload = function() {
+    canvas.getContext('2d').drawImage(img, 0, 0);
+ }
 
  img.src = './cir.svg';
 
