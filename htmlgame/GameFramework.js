@@ -26,7 +26,8 @@ function onPageLoadComplete()
 
  img.onload = function () {
     imgLoaded = true;
-     
+    ctx.drawImage(img, temp_text_x, temp_text_y, 100, 100); // SVG 렌더링
+   
  };
 
  img.src = './cir.svg';
@@ -81,9 +82,9 @@ function Render()
     // Canvas와 Context 가져오기
         
           // SVG 이미지가 로드되었을 경우에만 그리기
-          if (imgLoaded) {
-            ctx.drawImage(img, temp_text_x, temp_text_y, 100, 100); // SVG 렌더링
-        }
+        
+         
+       
 
 
 }
