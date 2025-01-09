@@ -9,16 +9,7 @@ var inputSystem = new InputSystem();
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 
- // SVG 이미지 로드
- const img = new Image();
- let imgLoaded = false;
 
- img.onload = function () {
-    imgLoaded = true;
-     
- };
-
- img.src = './cir.svg';
 function onPageLoadComplete()
 {
     
@@ -29,7 +20,16 @@ function onPageLoadComplete()
 }
 
 
+ // SVG 이미지 로드
+ const img = new Image();
+ let imgLoaded = false;
 
+ img.onload = function () {
+    imgLoaded = true;
+     
+ };
+
+ img.src = './cir.svg';
 
 
 
