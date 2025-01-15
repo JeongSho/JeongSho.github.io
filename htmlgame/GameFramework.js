@@ -345,15 +345,19 @@ function Render() {
        for(var j = 0; j < mo_ar.length; j++) {
            var mon = mo_ar[j];
            if( xx > mon.xx && xx <= mon.xx+mon.wd
-                &&  yy > mon.yy && yy <= mon.yy+mon.hd) {
+                &&  yy > mon.yy && yy <= mon.yy+mon.hd && mon.die == false) {
                   mon.life--;
                   if(mon.life == 0) {
                     mo_ar.splice(j,1);
                    
                     pokmem(mon.xx-mon.wd/2,mon.yy-mon.hd/2, 0);
                     score++;
+                    mon.die = true;
                     effectsound("pang");
-                  } else effectsound("attach");
+                  } else {
+                    effectsound("attach");
+                    
+                  }
                   pokmem(mon.xx-mon.wd/2,mon.yy-mon.hd/2, 8);
                   mi_ar.splice(i,1);
            }
@@ -454,6 +458,7 @@ function enemy_ani(tt, rr,sp, ar) {
             cl.x = Math.floor(Math.random()*(disp_width-cl.wd)); 
             cl.y = -300;
             cl.life = 5;  //  적군 라이프
+            cl.die = false;
             ar.push(cl);
             
             
