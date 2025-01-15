@@ -56,7 +56,8 @@ const fire_ar = [];
 const img_fire_ar= ["zetfire10001.png","zetfire10002.png","zetfire10003.png","zetfire10004.png","zetfire10005.png","zetfire10006.png","zetfire10007.png","zetfire10008.png"
                     ,"zetfire10009.png","zetfire10010.png","zetfire10011.png","zetfire10012.png","zetfire10013.png","zetfire10014.png"];
 const ob_fire_ar = [];
-
+let tot_life = 100;
+const lsize = 250;
 
 const path = "./image/";
 
@@ -147,16 +148,6 @@ function fireload(ar) {    // --------------------제트 분사사 무비..
 
 
 
-// 그리기 함수 (예시)
-function draw() {
-    const canvas = document.getElementById('myCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#FF0000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#000000';
-    ctx.font = '24px Arial';
-    ctx.fillText('Click the button to play sound', 50, 50);
-}
 
 // 초기 그리기
 // 사운드 로드
@@ -267,6 +258,7 @@ function Update() {
   }
   if (inputSystem.isKeyDown(90) && misa_chk == false) {
     misa_chk = true;
+    tot_life--;
     effectsound("shoot");
   }
 
@@ -398,8 +390,8 @@ function area(img) {
   if (temp_text_x > disp_width - img.width / 2)
     temp_text_x = disp_width - img.width / 2;
   if (temp_text_y < 100) temp_text_y = 100;
-  if (temp_text_y > disp_height - img.height / 2)
-    temp_text_y = disp_height - img.height / 2;
+  if (temp_text_y > disp_height - img.height*2 )
+    temp_text_y = disp_height - img.height*2;
 }
 
 function cloud_ani(tt, rr,sp, ar) {
@@ -560,6 +552,28 @@ function anifire(px,py) {
     }
   }
      
+//------------------------------------ 
+// 그리기 함수 (예시)
+function btdraw() {
+  const canvas = document.getElementById('GameCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#FF0000';
+  ctx.fillRect(8, disp_height-30, tot_life/100*lsize, 24);
+  ctx.fillStyle = '#000000';
+  ctx.rect(8, disp_height-30, lsize, 24);
+  ctx.stroke();
+  ctx.fillStyle = '#113322';
+  ctx.font = '24px Arial';
+  ctx.fillText('Health condition', 10, disp_height-55);
+
+  ctx.drawImage(ob_ar[0], disp_width-70,disp_height-55);
+  ctx.drawImage(ob_ar[0], disp_width-120,disp_height-55);
+  ctx.drawImage(ob_ar[0], disp_width-170,disp_height-55);
+  if(tot_life <= 0) {
+    gameOk = "stop";
+  }
+}
+
 
             
             
@@ -578,7 +592,7 @@ function gameLoop() {
     Update();
     Render();
     anipok();
-  //  draw();
+    btdraw();
     playSound();
     frameCounter.countFrame();
     
