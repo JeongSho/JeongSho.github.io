@@ -5,6 +5,7 @@ const fullscreenBtn = document.getElementById('fullscreenBtn');
 let isDragging = false;
 let startX, startY;
 let offsetX = 0, offsetY = 0;
+let disp_zoom = 2;
 
 // 배경 이미지 로드
 const backgroundImage = new Image();
@@ -17,7 +18,7 @@ backgroundImage.onload = function () {
 // 배경 그리기 함수
 function drawBackground() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, offsetX, offsetY, canvas.width*4, canvas.height*4, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundImage, offsetX, offsetY, canvas.width*disp_zoom, canvas.height*disp_zoom, 0, 0, canvas.width, canvas.height);
 }
 
 // 전체화면 전환 함수
@@ -51,14 +52,20 @@ fullscreenBtn.addEventListener('click', toggleFullScreen);
 // 마우스 이벤트 핸들러
 canvas.addEventListener('mousedown', function (e) {
     isDragging = true;
-    startX = e.clientX*4 + offsetX;
-    startY = e.clientY*4 + offsetY;
+    startX = e.clientX*disp_zoom + offsetX;
+    startY = e.clientY*disp_zoom + offsetY;
 });
 
 canvas.addEventListener('mousemove', function (e) {
     if (isDragging) {
-        offsetX = startX - e.clientX*4;
-        offsetY = startY - e.clientY*4;
+        offsetX = startX - e.clientX*disp_zoom;
+        offsetY = startY - e.clientY*disp_zoom;
+        if(offsetX <= 0) offsetX = 0;
+        if(offsetY <= 0) offsetY = 0;
+        if(offsetX >= backgroundImage.width- canvas.width*disp_zoom) offsetX = backgroundImage.width- canvas.width*disp_zoom;
+        if(offsetY >= backgroundImage.height- canvas.height*disp_zoom) offsetY = backgroundImage.height- canvas.height*disp_zoom;
+        
+
         drawBackground();
     }
 });
@@ -75,15 +82,20 @@ canvas.addEventListener('mouseout', function () {
 canvas.addEventListener('touchstart', function (e) {
     isDragging = true;
     const touch = e.touches[0];
-    startX = touch.clientX + offsetX;
-    startY = touch.clientY + offsetY;
+    startX = touch.clientX*disp_zoom + offsetX;
+    startY = touch.clientY*disp_zoom + offsetY;
 });
 
 canvas.addEventListener('touchmove', function (e) {
     if (isDragging) {
         const touch = e.touches[0];
-        offsetX = startX - touch.clientX;
-        offsetY = startY - touch.clientY;
+        offsetX = startX - touch.clientX*disp_zoom;
+        offsetY = startY - touch.clientY*disp_zoom;
+
+        if(offsetX <= 0) offsetX = 0;
+        if(offsetY <= 0) offsetY = 0;
+        if(offsetX >= backgroundImage.width- canvas.width*disp_zoom) offsetX = backgroundImage.width- canvas.width*disp_zoom;
+        if(offsetY >= backgroundImage.height- canvas.height*disp_zoom) offsetY = backgroundImage.height- canvas.height*disp_zoom;
         drawBackground();
     }
 });
