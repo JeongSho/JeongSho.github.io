@@ -8,7 +8,7 @@ let offsetX = 0, offsetY = 0;
 
 // 배경 이미지 로드
 const backgroundImage = new Image();
-backgroundImage.src = './background.png'; // 실제 배경 이미지 파일 경로로 변경
+backgroundImage.src = './2101.i121.040_isometric_fantasy_adventure_map.jpg'; // 실제 배경 이미지 파일 경로로 변경
 
 backgroundImage.onload = function () {
     drawBackground();
@@ -17,7 +17,7 @@ backgroundImage.onload = function () {
 // 배경 그리기 함수
 function drawBackground() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, offsetX, offsetY, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundImage, offsetX, offsetY, canvas.width*4, canvas.height*4, 0, 0, canvas.width, canvas.height);
 }
 
 // 전체화면 전환 함수
@@ -51,14 +51,14 @@ fullscreenBtn.addEventListener('click', toggleFullScreen);
 // 마우스 이벤트 핸들러
 canvas.addEventListener('mousedown', function (e) {
     isDragging = true;
-    startX = e.clientX + offsetX;
-    startY = e.clientY + offsetY;
+    startX = e.clientX*4 + offsetX;
+    startY = e.clientY*4 + offsetY;
 });
 
 canvas.addEventListener('mousemove', function (e) {
     if (isDragging) {
-        offsetX = startX - e.clientX;
-        offsetY = startY - e.clientY;
+        offsetX = startX - e.clientX*4;
+        offsetY = startY - e.clientY*4;
         drawBackground();
     }
 });
