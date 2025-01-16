@@ -1,5 +1,6 @@
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
 
 let isDragging = false;
 let startX, startY;
@@ -7,7 +8,7 @@ let offsetX = 0, offsetY = 0;
 
 // 배경 이미지 로드
 const backgroundImage = new Image();
-backgroundImage.src = './background.png'; // 실제 배경 이미지 파일 경로로 변경
+backgroundImage.src = 'background.png'; // 실제 배경 이미지 파일 경로로 변경
 
 backgroundImage.onload = function () {
     drawBackground();
@@ -18,6 +19,20 @@ function drawBackground() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(backgroundImage, offsetX, offsetY, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
 }
+
+// 전체화면 전환 함수
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        canvas.requestFullscreen().catch(err => {
+            alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+// 버튼 클릭 이벤트 핸들러
+fullscreenBtn.addEventListener('click', toggleFullScreen);
 
 // 마우스 이벤트 핸들러
 canvas.addEventListener('mousedown', function (e) {
