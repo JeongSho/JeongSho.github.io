@@ -1,15 +1,16 @@
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
+const zoomSlider = document.getElementById('zoomSlider');
 const fullscreenBtn = document.getElementById('fullscreenBtn');
 
 let isDragging = false;
 let startX, startY;
 let offsetX = 0, offsetY = 0;
-let disp_zoom = 2;
+let zoom = 1; // 확대/축소 초기값
 
 // 배경 이미지 로드
 const backgroundImage = new Image();
-backgroundImage.src = './2101.i121.040_isometric_fantasy_adventure_map.jpg'; // 실제 배경 이미지 파일 경로로 변경
+backgroundImage.src = '2101.i121.040_isometric_fantasy_adventure_map.jpg'; // 실제 배경 이미지 파일 경로로 변경
 
 backgroundImage.onload = function () {
     drawBackground();
@@ -18,8 +19,19 @@ backgroundImage.onload = function () {
 // 배경 그리기 함수
 function drawBackground() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, offsetX, offsetY, canvas.width*disp_zoom, canvas.height*disp_zoom, 0, 0, canvas.width, canvas.height);
+   // ctx.save();
+  //  ctx.scale(zoom, zoom); // 확대/축소 적용
+    setlimit();
+    ctx.drawImage(backgroundImage, offsetX , offsetY , canvas.width * zoom, canvas.height * zoom, 0, 0, canvas.width, canvas.height);
+    
+    ctx.restore();
 }
+
+// 줌 슬라이더 변경 이벤트 핸들러
+zoomSlider.addEventListener('input', function () {
+    zoom = parseFloat(zoomSlider.value);
+    drawBackground();
+});
 
 // 전체화면 전환 함수
 function toggleFullScreen() {
@@ -52,23 +64,25 @@ fullscreenBtn.addEventListener('click', toggleFullScreen);
 // 마우스 이벤트 핸들러
 canvas.addEventListener('mousedown', function (e) {
     isDragging = true;
-    startX = e.clientX*disp_zoom + offsetX;
-    startY = e.clientY*disp_zoom + offsetY;
+    startX = e.clientX*zoom + offsetX;
+    startY = e.clientY*zoom + offsetY;
 });
 
 canvas.addEventListener('mousemove', function (e) {
     if (isDragging) {
-        offsetX = startX - e.clientX*disp_zoom;
-        offsetY = startY - e.clientY*disp_zoom;
-        if(offsetX <= 0) offsetX = 0;
-        if(offsetY <= 0) offsetY = 0;
-        if(offsetX >= backgroundImage.width- canvas.width*disp_zoom) offsetX = backgroundImage.width- canvas.width*disp_zoom;
-        if(offsetY >= backgroundImage.height- canvas.height*disp_zoom) offsetY = backgroundImage.height- canvas.height*disp_zoom;
+        offsetX = startX - e.clientX*zoom;
+        offsetY = startY - e.clientY*zoom;
         
-
         drawBackground();
     }
 });
+
+function setlimit() {
+    if(offsetX <= 0) offsetX = 0;
+    if(offsetY <= 0) offsetY = 0;
+    if(offsetX >= backgroundImage.width- canvas.width*zoom) offsetX = backgroundImage.width- canvas.width*zoom;
+    if(offsetY >= backgroundImage.height- canvas.height*zoom) offsetY = backgroundImage.height- canvas.height*zoom;
+}
 
 canvas.addEventListener('mouseup', function () {
     isDragging = false;
@@ -82,20 +96,16 @@ canvas.addEventListener('mouseout', function () {
 canvas.addEventListener('touchstart', function (e) {
     isDragging = true;
     const touch = e.touches[0];
-    startX = touch.clientX*disp_zoom + offsetX;
-    startY = touch.clientY*disp_zoom + offsetY;
+    startX = touch.clientX*zoom + offsetX;
+    startY = touch.clientY*zoom + offsetY;
 });
 
 canvas.addEventListener('touchmove', function (e) {
     if (isDragging) {
         const touch = e.touches[0];
-        offsetX = startX - touch.clientX*disp_zoom;
-        offsetY = startY - touch.clientY*disp_zoom;
-
-        if(offsetX <= 0) offsetX = 0;
-        if(offsetY <= 0) offsetY = 0;
-        if(offsetX >= backgroundImage.width- canvas.width*disp_zoom) offsetX = backgroundImage.width- canvas.width*disp_zoom;
-        if(offsetY >= backgroundImage.height- canvas.height*disp_zoom) offsetY = backgroundImage.height- canvas.height*disp_zoom;
+        offsetX = startX - touch.clientX*zoom;
+        offsetY = startY - touch.clientY*zoom;
+        
         drawBackground();
     }
 });
@@ -107,3 +117,5 @@ canvas.addEventListener('touchend', function () {
 canvas.addEventListener('touchcancel', function () {
     isDragging = false;
 });
+
+
