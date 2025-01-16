@@ -80,7 +80,7 @@ function drawBackground() {
 
 
 const f_ar = [];
-for(var i = 0; i < 1000; i++) {
+for(var i = 0; i < 100; i++) {
     var ob = new Object();
     ob.xx = 2000+i*(Math.random()*300);
     ob.yy = 2000+i*(Math.random()*300);
