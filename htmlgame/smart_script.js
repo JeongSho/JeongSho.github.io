@@ -8,7 +8,7 @@ let offsetX = 0, offsetY = 0;
 
 // 배경 이미지 로드
 const backgroundImage = new Image();
-backgroundImage.src = 'background.png'; // 실제 배경 이미지 파일 경로로 변경
+backgroundImage.src = './background.png'; // 실제 배경 이미지 파일 경로로 변경
 
 backgroundImage.onload = function () {
     drawBackground();
@@ -22,12 +22,26 @@ function drawBackground() {
 
 // 전체화면 전환 함수
 function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-        canvas.requestFullscreen().catch(err => {
-            alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-        });
+    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+        if (canvas.requestFullscreen) {
+            canvas.requestFullscreen();
+        } else if (canvas.mozRequestFullScreen) { // Mozilla Firefox
+            canvas.mozRequestFullScreen();
+        } else if (canvas.webkitRequestFullscreen) { // Chrome, Safari, Opera
+            canvas.webkitRequestFullscreen();
+        } else if (canvas.msRequestFullscreen) { // Internet Explorer/Edge
+            canvas.msRequestFullscreen();
+        }
     } else {
-        document.exitFullscreen();
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
     }
 }
 
