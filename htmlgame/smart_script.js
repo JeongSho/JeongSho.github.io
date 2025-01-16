@@ -7,7 +7,7 @@ let offsetX = 0, offsetY = 0;
 
 // 배경 이미지 로드
 const backgroundImage = new Image();
-backgroundImage.src = 'background.png'; // 실제 배경 이미지 파일 경로로 변경
+backgroundImage.src = './background.png'; // 실제 배경 이미지 파일 경로로 변경
 
 backgroundImage.onload = function () {
     drawBackground();
