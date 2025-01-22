@@ -1,69 +1,61 @@
+
+</html>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu</title>
+    <title>SWF Player</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 10px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
         }
 
-        #swf-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        #swf-list li {
-            margin: 10px 0;
-            cursor: pointer;
-            color: blue;
-            text-decoration: underline;
+        #swf-player {
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
-    <h2>Game List</h2>
-    <ul id="swf-list"></ul>
+    <script src="./ruffle/ruffle.js"></script>
+    <div id="swf-player">
+        <h1>Loading...</h1>
+    </div>
 
     <script>
-        const swfListJson = "./ruffle/swf_list.json";
-
-        async function loadSwfList() {
-            try {
-                const response = await fetch(swfListJson);
-                if (!response.ok) throw new Error("Failed to load SWF list.");
-                const data = await response.json();
-
-                populateSwfList(data.files);
-            } catch (error) {
-                console.error("Error fetching SWF list:", error);
-            }
-        }
-
-        function populateSwfList(files) {
-            const swfList = document.getElementById("swf-list");
-            files.forEach(file => {
-                const listItem = document.createElement("li");
-                listItem.textContent = file.name;
-
-                // Click event to load fplayer.html in mainFrame
-                listItem.addEventListener("click", () => {
-                    const playerUrl = `fplayer.html?name=${encodeURIComponent(file.name)}&width=${file.width}&height=${file.height}`;
-                    window.parent.mainFrame.location.href = playerUrl;
-                });
-
-                swfList.appendChild(listItem);
+        function getQueryParams() {
+            const params = {};
+            const queryString = window.location.search.slice(1);
+            queryString.split("&").forEach(pair => {
+                const [key, value] = pair.split("=");
+                params[decodeURIComponent(key)] = decodeURIComponent(value || "");
             });
+            return params;
         }
 
-        loadSwfList();
-    </script>
+        function loadSwf() {
+            const params = getQueryParams();
+            const swfUrl = `./ruffle/swf_file/${params.name}`;
+            const playerContainer = document.getElementById("swf-player");
 
-    
+            playerContainer.innerHTML = `
+                <embed 
+                    src="${swfUrl}" 
+                    width="${params.width}" 
+                    height="${params.height}">
+                </embed>
+            `;
+        }
+
+        loadSwf();
+    </script>
 </body>
 
 </html>
