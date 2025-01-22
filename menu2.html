@@ -77,7 +77,7 @@
 
         function openSwfPlayer(file) {
             const playerUrl = `./fplayer.html?name=${encodeURIComponent(file.name)}&width=${file.width}&height=${file.height}`;
-            window.open(playerUrl, "mainFrame", "width=800,height=600");
+            window.open(playerUrl, "_blank", "width=800,height=600");
         }
 
         loadSwfList();
