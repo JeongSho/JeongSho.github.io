@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>색칠 놀이 웹 게임</title>
+    <style>
+        /* 기본 스타일 */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #colorPalette {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .color {
+            width: 30px;
+            height: 30px;
+            margin: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid #333;
+        }
+
+        #canvasContainer {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+        }
+
+        #printButton {
+            margin: 15px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* 프린트 설정 */
+        @media print {
+            /* 프린트할 때 숨길 요소들 */
+            body > *:not(#canvasContainer) {
+                display: none;
+            }
+
+            /* SVG 영역을 페이지 중앙에 배치 */
+            #canvasContainer {
+                margin: 0 auto;
+                max-width: none;
+                width: 100%;
+            }
+
+            svg {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>색칠 놀이 웹 게임</h1>
+    
+    <!-- 프린트 버튼 -->
+    <button id="printButton" onclick="window.print()">프린트하기</button>
+
+    <!-- 색상 팔레트 -->
+    <div id="colorPalette"></div>
+
+    <!-- SVG 캔버스 -->
+    <div id="canvasContainer">
+        <!-- SVG 파일을 여기에 삽입합니다 -->
+        <object id="svgImage" data="8563694.svg" type="image/svg+xml"></object>
+    </div>
+
+    <script>
+        // 색상 목록 생성
+        const colors = [
+            "#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", 
+            "#33FFF5", "#F5FF33", "#FF8633", "#8C33FF", "#33FF86", 
+            "#FF338A", "#33A1FF", "#FFA133", "#FF33F5", "#5733FF", 
+            "#A1FF33", "#FF8C33", "#33FF8C", "#FF3385", "#33A8FF"
+
+        ];
+        let selectedColor = colors[0];  // 초기 선택 색상
+
+        // 색상 팔레트 생성
+        const palette = document.getElementById("colorPalette");
+        colors.forEach(color => {
+            const colorDiv = document.createElement("div");
+            colorDiv.classList.add("color");
+            colorDiv.style.backgroundColor = color;
+            colorDiv.onclick = () => selectColor(color);
+            palette.appendChild(colorDiv);
+        });
+
+        // 색상 선택 함수
+        function selectColor(color) {
+            selectedColor = color;
+            document.body.style.cursor = `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="8" fill="${encodeURIComponent(color)}" /></svg>') 16 16, auto`;
+        }
+
+        // SVG 이미지 로딩 후 색칠 이벤트 추가
+        document.getElementById("svgImage").addEventListener("load", function() {
+            const svgDoc = this.contentDocument;
+            const elements = svgDoc.querySelectorAll("*");  // SVG 내부의 모든 요소 선택
+
+            elements.forEach(elem => {
+                elem.addEventListener("click", function() {
+                    this.style.fill = selectedColor;  // 클릭한 요소의 색상을 선택된 색상으로 변경
+                });
+                elem.addEventListener("mouseover", function() {
+                    this.style.cursor = `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="8" fill="${encodeURIComponent(selectedColor)}" /></svg>') 16 16, auto`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
