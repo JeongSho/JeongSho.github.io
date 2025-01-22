@@ -1,1 +1,25 @@
-<!doctype html><html lang=""><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/favicon.ico"><title>rtest</title><script defer="defer" src="/js/chunk-vendors.2e94d9e2.js"></script><script defer="defer" src="/js/app.336a96af.js"></script><link href="/css/app.73ac7877.css" rel="stylesheet"></head><body><noscript><strong>We're sorry but rtest doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div></body></html>
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mainFrame</title>
+</head>
+<frameset rows="10%,80%,10%"  border="0" >
+    
+    <!-- 상단 프레임 -->
+    <frame src="header.html" name="topFrame" scrolling="no" noresize>
+
+    <!-- 하단 프레임 (좌우로 나눔) -->
+    <frameset cols="15%,70%,15%" border="0">
+        <!-- 왼쪽 프레임 -->
+        <frame src="menu.html" name="leftFrame">
+        <!-- 메인 프레임 -->
+        <frame src="default.html" name="mainFrame" scrolling="no" noresize>
+            <!-- 오른쪽 프레임 -->
+        <frame src="menu2.html" name="rightFrame">
+        
+         <frame src="bottom.html" name="bottomFrame">
+    </frameset>
+</frameset>
+</html>
