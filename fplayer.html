@@ -57,32 +57,6 @@
         loadSwf();
     </script>
 
-    <!-- 전체화면 버튼 -->
- <button id="fullscreenButton">전체화면</button>
 
- <!-- Ruffle SWF 콘텐츠 -->
- <div id="ruffle-container">
-    
- </div>
-
- <script>
-     // 전체화면 요청 함수
-     function goFullscreen() {
-         const elem = document.getElementById("ruffle-container");
-         if (elem.requestFullscreen) {
-             elem.requestFullscreen();
-         } else if (elem.mozRequestFullScreen) { // Firefox
-             elem.mozRequestFullScreen();
-         } else if (elem.webkitRequestFullscreen) { // Chrome, Safari, Opera
-             elem.webkitRequestFullscreen();
-         } else if (elem.msRequestFullscreen) { // IE/Edge
-             elem.msRequestFullscreen();
-         }
-     }
-
-     // 버튼 클릭 이벤트로 전체화면 활성화
-     document.getElementById("fullscreenButton").addEventListener("click", goFullscreen);
- </script>
-</body>
 
 </html>
