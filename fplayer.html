@@ -1,0 +1,61 @@
+
+</html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWF Player</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        #swf-player {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="./ruffle/ruffle.js"></script>
+    <div id="swf-player">
+        <h1>Loading...</h1>
+    </div>
+
+    <script>
+        function getQueryParams() {
+            const params = {};
+            const queryString = window.location.search.slice(1);
+            queryString.split("&").forEach(pair => {
+                const [key, value] = pair.split("=");
+                params[decodeURIComponent(key)] = decodeURIComponent(value || "");
+            });
+            return params;
+        }
+
+        function loadSwf() {
+            const params = getQueryParams();
+            const swfUrl = `./ruffle/swf_file/${params.name}`;
+            const playerContainer = document.getElementById("swf-player");
+
+            playerContainer.innerHTML = `
+                <embed 
+                    src="${swfUrl}" 
+                    width="${params.width}" 
+                    height="${params.height}">
+                </embed>
+            `;
+        }
+
+        loadSwf();
+    </script>
+</body>
+
+</html>
