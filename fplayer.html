@@ -42,7 +42,7 @@
 
         function loadSwf() {
             const params = getQueryParams();
-            const swfUrl = `./flashgame/swf_file/${params.name}`;
+            const swfUrl = `./ruffle/swf_file/${params.name}`;
             const playerContainer = document.getElementById("swf-player");
 
             playerContainer.innerHTML = `
@@ -56,7 +56,7 @@
 
         loadSwf();
     </script>
-
-
+    
+</body>
 
 </html>
