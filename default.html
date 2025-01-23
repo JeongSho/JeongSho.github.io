@@ -40,10 +40,10 @@
             });
             return params;
         }
-        function loadSwf(swfName) {
+        function loadSwf(swfName,playerId) {
             const params = getQueryParams();
             const swfUrl = swfName;
-            const playerContainer = document.getElementById("swf-player");
+            const playerContainer = document.getElementById(playerId);
 
             playerContainer.innerHTML = `
                 <embed 
