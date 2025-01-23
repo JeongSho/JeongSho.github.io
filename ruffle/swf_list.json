@@ -1,6 +1,7 @@
 
 {
   "files": [
+    { "name": "crossword.swf", "width": 480, "height": 640 },
     { "name": "amy.swf", "width": 480, "height": 640 },
     { "name": "phyong.swf", "width": 416, "height": 740 },
     { "name": "체인지 히어로-110410.swf", "width": 800, "height": 600 },
