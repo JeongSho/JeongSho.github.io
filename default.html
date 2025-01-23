@@ -6,7 +6,29 @@
     <title>Default</title>
 </head>
 <body>
-    <h1>Welcome!</h1>
-    <p>이곳에 선택된 페이지가 표시됩니다.</p>
+    <script src="./ruffle/ruffle.js"></script>
+    <div id="swf-player">
+        <h1>Loading...</h1>
+    </div>
+
+    <script>
+        
+
+        function loadSwf(swfName) {
+            const params = getQueryParams();
+            const swfUrl = swfName;
+            const playerContainer = document.getElementById("swf-player");
+
+            playerContainer.innerHTML = `
+                <embed 
+                    src="${swfUrl}" 
+                    width="640" 
+                    height="480">
+                </embed>
+            `;
+        }
+
+        loadSwf("snake2.swf");
+        </script>
 </body>
 </html>
