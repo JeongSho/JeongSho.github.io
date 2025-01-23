@@ -24,6 +24,10 @@
     <div id="swf-player">
         <h1>Loading...</h1>
     </div>
+    <script src="./ruffle/ruffle.js"></script>
+    <div id="swf-player2"></div>
+        <h1>Loading...</h1>
+    </div>
 
     <script>
         
@@ -50,7 +54,8 @@
             `;
         }
 
-        loadSwf("./snake2.swf");
+        loadSwf("./snake2.swf","swf-player");
+        loadSwf("./snake3.swf","swf-player2");
         </script>
 </body>
 </html>
