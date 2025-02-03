@@ -37,7 +37,7 @@
 
 <body>
 
-<canvas width="271" height="392" id="game"></canvas>
+<canvas width="671" height="792" id="game"></canvas>
 
 <script>
 
@@ -62,7 +62,7 @@ const context = canvas.getContext('2d');
 
 // gives the illusion of the bubble snapping to a grid
 
-const grid = 32;
+const grid = 52;
 
 
 // each even row is 8 bubbles long and each odd row is 7 bubbles long.
@@ -73,13 +73,13 @@ const grid = 32;
 
 const level1 = [
 
-  ['R','R','Y','Y','B','B','G','G'],
+  ['R','R','Y','Y','B','B','G','G','B','G','G','R'],
 
-  ['R','R','Y','Y','B','B','G'],
+  ['R','R','Y','Y','B','B','G','G','B','G','G','G'],
 
-  ['B','B','G','G','R','R','Y','Y'],
+  ['B','B','G','G','R','R','Y','Y','R','Y','Y','B'],
 
-  ['B','G','G','R','R','Y','Y']
+  ['B','G','G','R','R','Y','Y','R','Y','Y','Y']
 
 ];
 
@@ -463,7 +463,7 @@ function dropFloatingBubbles() {
 
 for (let row = 0; row < 10; row++) {
 
-  for (let col = 0; col < (row % 2 === 0 ? 8 : 7); col++) {
+  for (let col = 0; col < (row % 2 === 0 ? 13 : 12); col++) {
 
     // if the level has a bubble at the location, create an active
 
@@ -501,7 +501,7 @@ const curBubble = {
 
   // how fast the bubble should go in either the x or y direction
 
-  speed: 8,
+  speed: 15,
 
 
   // bubble velocity
@@ -823,6 +823,24 @@ if (e.code === 'Space' &&  curBubble.dx === 0 && curBubble.dy === 0) {
 }
 
 });
+
+//mouse event
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  let newDeg = Math.atan2(mouseX - curBubblePos.x, curBubblePos.y - mouseY);
+  if (newDeg < minDeg) newDeg = minDeg;
+  if (newDeg > maxDeg) newDeg = maxDeg;
+  shootDeg = newDeg;
+});
+
+canvas.addEventListener('mousedown', (e) => {
+  curBubble.dx = Math.sin(shootDeg) * curBubble.speed;
+
+  curBubble.dy = -Math.cos(shootDeg) * curBubble.speed;
+});
+
 
 
 // listen for keyboard events to stop moving the fire arrow if key is
