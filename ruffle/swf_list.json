@@ -39,7 +39,8 @@
     { "name": "아기키우기디팬스.swf", "width": 800, "height": 600 },
     { "name": "아기키우기점프.swf", "width": 800, "height": 600 },
     { "name": "baby14.swf", "width": 416, "height": 740 },
-    { "name": "bannicliff.swf", "width": 416, "height": 740 }
+    { "name": "bannicliff.swf", "width": 416, "height": 740 },
+    { "name": "fight.swf", "width": 640, "height": 480 }
     
   ]
 }
