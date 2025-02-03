@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>네트워크 게임 로그인 & 플레이</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      text-align: center;
+      background: #222;
+      color: #fff;
+    }
+    /* 로그인 화면 */
+    #loginContainer {
+      display: block;
+      padding: 20px;
+    }
+    #loginContainer input,
+    #loginContainer select,
+    #loginContainer button {
+      padding: 8px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    /* 게임 화면 (초기엔 숨김) */
+    #gameContainer {
+      display: none;
+    }
+    #zoomContainer {
+      margin: 10px;
+    }
+    canvas {
+      border: 1px solid #000;
+      background: #333;
+      display: block;
+      margin: 0 auto;
+    }
+    #chatContainer {
+      margin: 10px auto;
+      width: 500px;
+      text-align: center;
+    }
+    #chatInput {
+      width: 80%;
+      padding: 5px;
+      font-size: 14px;
+    }
+    #chatSend {
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+  </style>
+  <script src="./InputSystem.js"></script>
+</head>
+<body>
+  <!-- 로그인/캐릭터 선택 화면 -->
+  <div id="loginContainer">
+    <h2>로그인</h2>
+    <div>
+      아이디: <input type="text" id="playerIdInput" placeholder="아이디를 입력하세요" />
+    </div>
+    <div>
+      캐릭터 선택:
+      <select id="characterSelect">
+        <!-- 캐릭터별 이미지 URL (서버나 프로젝트에 맞게 수정) -->
+        <option value="player1.png">캐릭터 1</option>
+        <option value="player2.png">캐릭터 2</option>
+        <option value="player3.png">캐릭터 3</option>
+      </select>
+    </div>
+    <div>
+      <button id="startGameBtn">게임 시작</button>
+    </div>
+  </div>
+
+  <!-- 게임 화면 -->
+  <div id="gameContainer">
+    <!-- 줌 조절 슬라이더 -->
+    <div id="zoomContainer">
+      줌: <input type="range" id="zoomSlider" min="0.5" max="2.0" step="0.1" value="1.0" />
+      <span id="zoomValue">1.0</span>
+    </div>
+    <!-- 게임 캔버스 -->
+    <canvas id="gameCanvas" width="500" height="500"></canvas>
+    <!-- 채팅 입력 영역 -->
+    <div id="chatContainer">
+      <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." />
+      <button id="chatSend">전송</button>
+    </div>
+  </div>
+
+  <script>
+    /***** 로그인 및 게임 전환 *****/
+    const loginContainer = document.getElementById('loginContainer');
+    const gameContainer = document.getElementById('gameContainer');
+    const startGameBtn = document.getElementById('startGameBtn');
+    const playerIdInput = document.getElementById('playerIdInput');
+    const characterSelect = document.getElementById('characterSelect');
+
+    let myPlayerId = null;
+    let myCharacterImgUrl = null;
+
+    startGameBtn.addEventListener('click', () => {
+      const enteredId = playerIdInput.value.trim();
+      if (!enteredId) {
+        alert("아이디를 입력하세요.");
+        return;
+      }
+      myPlayerId = enteredId;
+      myCharacterImgUrl = characterSelect.value;
+      // 로그인 후 게임 화면 전환
+      loginContainer.style.display = 'none';
+      gameContainer.style.display = 'block';
+      initGame();
+    });
+
+    /***** 게임 및 소켓 관련 코드 *****/
+    let socket;  // 웹소켓
+    let playerId = null; // 서버에서 할당받은 플레이어 id
+    let players = {};    // 모든 플레이어 데이터 (예: { id: { x, y, name, character, message } })
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 줌 관련
+    let zoom = 1.0;
+    const zoomSlider = document.getElementById('zoomSlider');
+    const zoomValue = document.getElementById('zoomValue');
+    zoomSlider.addEventListener('input', () => {
+      zoom = parseFloat(zoomSlider.value);
+      zoomValue.textContent = zoom.toFixed(1);
+    });
+
+    // 플레이어 아바타 이미지를 캐시 (URL을 키로 사용)
+    const playerImages = {};  // 예: { "player1.png": Image, ... }
+    function getPlayerImage(url) {
+      if (!playerImages[url]) {
+        const img = new Image();
+        img.src = url;
+        playerImages[url] = img;
+      }
+      return playerImages[url];
+    }
+    // 기본 이미지 URL (타 플레이어의 데이터가 없을 때)
+    const defaultPlayerImageUrl = 'player.png';
+
+    // 배경 이미지 로드
+    const backgroundImage = new Image();
+    backgroundImage.src = 'background.jpg'; // 큰 배경 이미지
+
+    const mapWidth = 1500;
+    const mapHeight = 1500;
+    let cameraX = 0;
+    let cameraY = 0;
+
+    // 채팅 관련
+    const chatInput = document.getElementById('chatInput');
+    const chatSend = document.getElementById('chatSend');
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        sendChatMessage();
+      }
+    });
+    chatSend.addEventListener('click', sendChatMessage);
+    function sendChatMessage() {
+      const message = chatInput.value.trim();
+      if (message) {
+        socket.send(JSON.stringify({ type: 'chat', id: playerId, message }));
+        chatInput.value = '';
+      }
+    }
+
+    // 이동 명령 (InputSystem.js 사용)
+    function Update() {
+      let dx = 0, dy = 0;
+      if (inputSystem.isKeyDown(37)) { dx = -5; } // LEFT
+      if (inputSystem.isKeyDown(39)) { dx = 5; }  // RIGHT
+      if (inputSystem.isKeyDown(38)) { dy = -5; } // UP
+      if (inputSystem.isKeyDown(40)) { dy = 5; }  // DOWN
+
+      if (dx !== 0 || dy !== 0) {
+        socket.send(JSON.stringify({ type: 'move', id: playerId, dx, dy }));
+      }
+
+      // 내 플레이어를 중심으로 카메라 업데이트
+      if (playerId && players[playerId] && typeof players[playerId].x === 'number') {
+        cameraX = players[playerId].x - canvas.width / (2 * zoom);
+        cameraY = players[playerId].y - canvas.height / (2 * zoom);
+        cameraX = Math.max(0, Math.min(cameraX, mapWidth - canvas.width / zoom));
+        cameraY = Math.max(0, Math.min(cameraY, mapHeight - canvas.height / zoom));
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      Update();
+
+      ctx.save();
+      ctx.scale(zoom, zoom);
+      // 배경 그리기
+      ctx.drawImage(backgroundImage, -cameraX, -cameraY, mapWidth, mapHeight);
+
+      // 모든 플레이어 그리기 (유효한 좌표가 있는 경우만)
+      for (let id in players) {
+        const p = players[id];
+        if (typeof p.x !== 'number' || typeof p.y !== 'number') continue;
+        const screenX = p.x - cameraX;
+        const screenY = p.y - cameraY;
+        // 플레이어 이미지 URL (내 경우 myCharacterImgUrl, 타인의 경우 p.character 또는 기본)
+        const imgUrl = (id === playerId) ? myCharacterImgUrl : (p.character || defaultPlayerImageUrl);
+        const img = getPlayerImage(imgUrl);
+        ctx.drawImage(img, screenX - 16, screenY - 16, 32, 32);
+        // 플레이어 이름 (아이디)
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.name || id, screenX, screenY + 28);
+        // 채팅 메시지가 있으면 플레이어 이미지 위쪽에 표시
+        if (p.message && p.message.trim() !== '') {
+          ctx.fillStyle = 'yellow';
+          ctx.font = '14px Arial';
+          ctx.fillText(p.message, screenX, screenY - 20);
+        }
+      }
+      ctx.restore();
+      requestAnimationFrame(render);
+    }
+
+    /***** 초기화 및 소켓 접속 *****/
+    function initGame() {
+      socket = new WebSocket('ws://172.30.1.17:8080');
+      socket.addEventListener('open', () => {
+        // 로그인 정보 전송 (id, name, character)
+        socket.send(JSON.stringify({
+          type: 'login',
+          id: myPlayerId,
+          name: myPlayerId,
+          character: myCharacterImgUrl
+        }));
+      });
+      socket.addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'init') {
+          playerId = data.id;
+          players = data.players;
+          console.log(`플레이어 ID (init): ${playerId}`);
+        } else if (data.type === 'update') {
+          players = data.players;
+        } else if (data.type === 'chat') {
+          players = data.players;
+        }
+      });
+      render();
+    }
+  </script>
+</body>
+</html>
