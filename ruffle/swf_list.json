@@ -1,12 +1,13 @@
 
 {
   "files": [
+    { "name": "격투기2.swf", "width": 1000, "height": 800 },
+    { "name": "crossword.swf", "width": 800, "height": 600 },
     { "name": "amy.swf", "width": 480, "height": 640 },
     { "name": "phyong.swf", "width": 416, "height": 740 },
     { "name": "체인지 히어로-110410.swf", "width": 800, "height": 600 },
     { "name": "에일리언헌터2s-120203_forGomsee_2.swf", "width": 640, "height": 480 },
     { "name": "에일리어헌터3-120816s_2.swf", "width": 640, "height": 480 },
-    { "name": "에일리언헌터4.swf", "width": 640, "height": 480 },
     { "name": "ultimateTank_V_1_0_4.swf", "width": 640, "height": 480 },
     { "name": "초괴수 곰씨03(110604)_forGomsee_t.swf", "width": 640, "height": 480 },
     { "name": "골키퍼 곰씨.swf", "width": 640, "height": 480 },
@@ -25,7 +26,6 @@
     { "name": "스토커 곰씨.swf", "width": 640, "height": 480 },
     { "name": "아기밥먹이기.swf", "width": 800, "height": 480 },
     { "name": "아기키우기5.swf", "width": 640, "height": 480 },
-    { "name": "아기 업글08.swf", "width": 640, "height": 480 },
     { "name": "아빠 맞춰줘!.swf", "width": 640, "height": 480 },
     { "name": "아빠! 초밥이 좋아요.swf", "width": 640, "height": 480 },
     { "name": "엄마의 아이스크림가게.swf", "width": 640, "height": 480 },
@@ -33,7 +33,15 @@
     { "name": "양찾으러가요.swf", "width": 640, "height": 480 },
     { "name": "에어하키.swf", "width": 640, "height": 480 },
     { "name": "윷놀이.swf", "width": 640, "height": 480 },
-    { "name": "팡이눈싸움.swf", "width": 640, "height": 480 }
+    { "name": "팡이눈싸움.swf", "width": 640, "height": 480 },
+    { "name": "chocoPlease.swf", "width": 640, "height": 480 },
+    { "name": "스턴트 곰씨.swf", "width": 800, "height": 600 },
+    { "name": "플라잉팬.swf", "width": 800, "height": 600 },
+    { "name": "아기키우기디팬스.swf", "width": 800, "height": 600 },
+    { "name": "아기키우기점프.swf", "width": 800, "height": 600 },
+    { "name": "baby14.swf", "width": 416, "height": 740 },
+    { "name": "bannicliff.swf", "width": 416, "height": 740 },
+    { "name": "fight.swf", "width": 640, "height": 480 }
     
   ]
 }
