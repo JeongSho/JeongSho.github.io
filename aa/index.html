@@ -1,89 +1,51 @@
-class Example extends Phaser.Scene
-{
-    constructor ()
-    {
-        super();
-    }
-
-    preload ()
-    {
-       // this.load.setBaseURL('https://cdn.phaserfiles.com/v385');
-        this.load.image('bg', 'assets/sprites/bg_blue.png');
-        this.load.spritesheet('hat', 'assets/sprites/hat.png', { frameWidth: 237, frameHeight: 318, endFrame: 105 });
-         this.load.spritesheet('hat2', 'assets/sprites/hat2.png', { frameWidth: 262, frameHeight: 242, endFrame: 56 });
-        this.load.spritesheet('pan1', 'assets/sprites/pan1.png', { frameWidth: 187, frameHeight: 221, endFrame: 15 });
-    }
-
-    create ()
-    {
-         this.add.image(400, 16, 'bg').setOrigin(0.5, 0);
-        const config_hat = {
-            key: 'explode',
-            frames: 'hat',
-            frameRate: 40,
-            repeat: -1,
-            repeatDelay: 300
-        };
-         const config_hat2 = {
-            key: 'explode2',
-            frames: 'hat2',
-            frameRate: 40,
-            repeat: -1,
-            repeatDelay: 300
-        };
-        const config_pan1 = {
-            key: 'aa',
-            frames: 'pan1',
-            frameRate: 40,
-            repeat: -1,
-            repeatDelay: 10
-        };
-
-        this.anims.create(config_hat);
-         this.anims.create(config_hat2);
-         this.anims.create(config_pan1);
-
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>game6</title>
+        <style>
+            /* Reset CSS: Please avoid making changes here unless you know what you're doing :) */
+            *,
+            *::before,
+            *::after {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+    
+            html, body {
+                width: 100%;
+                height: 100%;
+            }
+    
+            body {
+                line-height: 1;
+                font-family: Arial, sans-serif;
+                background-color: #ffffff;
+            }
+    
+            ol, ul {
+                list-style: none;
+            }
+    
+            img, video {
+                max-width: 100%;
+                height: auto;
+                display: block;
+            }
+    
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+        </style>
+    </head>
+    <body>
         
 
-            let hat = this.add.sprite(650, 410, 'hat', 105);
-
-
-            //  Each one can have a random start delay
-            hat.play({
-                key: 'explode',
-                delay: Math.random() * 1000
-            });
-
-             let hat2 = this.add.sprite(400, 440, 'hat2', 105);
-
-
-            //  Each one can have a random start delay
-            hat2.play({
-                key: 'explode2',
-                delay: Math.random() * 1000
-            });
-
-
-
-             let pan1 = this.add.sprite(200, 450, 'pan1', 17);
-            
-
-            //  Each one can have a random start delay
-            pan1.play({
-                key: 'aa',
-                delay: Math.random() * 100
-            });
-      
-      
-    }
-}
-
-const config = {
-    type: Phaser.AUTO,
-    parent: 'phaser-example',
-    width: 800,
-    height: 600,
-    scene: Example
-};
-
-const game = new Phaser.Game(config);
+        <div id="game-container"></div>
+        <script src="./phaser.js"></script>
+        <script type="module" src="./src/main.js"></script>
+    </body>
+    </html>
