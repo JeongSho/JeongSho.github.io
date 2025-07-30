@@ -11,7 +11,8 @@ class Example extends Phaser.Scene
         this.load.image('bg', 'assets/sprites/bg_blue.png');
         this.load.spritesheet('hat', 'assets/sprites/hat.png', { frameWidth: 237, frameHeight: 318, endFrame: 105 });
          this.load.spritesheet('hat2', 'assets/sprites/hat2.png', { frameWidth: 262, frameHeight: 242, endFrame: 56 });
-        this.load.spritesheet('pan1', 'assets/sprites/pan1.png', { frameWidth: 187, frameHeight: 221, endFrame: 15 });
+        
+        this.load.spritesheet('pan1', 'assets/sprites/pan1.png', { frameWidth: 176, frameHeight: 206, endFrame: 16 });
     }
 
     create ()
@@ -54,7 +55,7 @@ class Example extends Phaser.Scene
                 delay: Math.random() * 1000
             });
 
-             let hat2 = this.add.sprite(400, 440, 'hat2', 105);
+             let hat2 = this.add.sprite(400, 440, 'hat2', 56);
 
 
             //  Each one can have a random start delay
