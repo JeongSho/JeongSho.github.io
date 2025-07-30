@@ -10,6 +10,7 @@ class Example extends Phaser.Scene
        // this.load.setBaseURL('https://cdn.phaserfiles.com/v385');
         this.load.image('bg', 'assets/sprites/bg_blue.png');
         this.load.spritesheet('hat', 'assets/sprites/hat.png', { frameWidth: 237, frameHeight: 318, endFrame: 105 });
+         this.load.spritesheet('hat2', 'assets/sprites/hat2.png', { frameWidth: 262, frameHeight: 242, endFrame: 56 });
         this.load.spritesheet('pan1', 'assets/sprites/pan1.png', { frameWidth: 187, frameHeight: 221, endFrame: 15 });
     }
 
@@ -23,6 +24,13 @@ class Example extends Phaser.Scene
             repeat: -1,
             repeatDelay: 300
         };
+         const config_hat2 = {
+            key: 'explode2',
+            frames: 'hat2',
+            frameRate: 40,
+            repeat: -1,
+            repeatDelay: 300
+        };
         const config_pan1 = {
             key: 'aa',
             frames: 'pan1',
@@ -32,11 +40,12 @@ class Example extends Phaser.Scene
         };
 
         this.anims.create(config_hat);
+         this.anims.create(config_hat2);
          this.anims.create(config_pan1);
 
         
 
-            let hat = this.add.sprite(400, 400, 'hat', 105);
+            let hat = this.add.sprite(650, 410, 'hat', 105);
 
 
             //  Each one can have a random start delay
@@ -44,6 +53,16 @@ class Example extends Phaser.Scene
                 key: 'explode',
                 delay: Math.random() * 1000
             });
+
+             let hat2 = this.add.sprite(400, 440, 'hat2', 105);
+
+
+            //  Each one can have a random start delay
+            hat2.play({
+                key: 'explode2',
+                delay: Math.random() * 1000
+            });
+
 
 
              let pan1 = this.add.sprite(200, 450, 'pan1', 17);
