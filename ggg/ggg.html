@@ -95,6 +95,7 @@ body {
 
 	</head>
 	<body>
+		
 		<canvas id="canvas">
 			Your browser does not support the canvas tag.
 		</canvas>
@@ -108,9 +109,16 @@ body {
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
+        <script>
+			var Module = {
+				locateFile: (path) => "ggg/" + path
+			};
 
+		</script>
 		<script src="ggg.js"></script>
+		
 		<script>
+
 const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"ensureCrossOriginIsolationHeaders":true,"executable":"ggg","experimentalVK":false,"fileSizes":{"ggg.pck":279600,"ggg.wasm":43699190},"focusCanvas":true,"gdextensionLibs":[]};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);

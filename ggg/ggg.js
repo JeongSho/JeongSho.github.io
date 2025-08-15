@@ -1,9 +1,4 @@
 
-var Module = {
-    locateFile: (path) => "ggg/" + path
-};
-
-
 var Godot = (() => {
   var _scriptName = typeof document != 'undefined' ? document.currentScript?.src : undefined;
   
