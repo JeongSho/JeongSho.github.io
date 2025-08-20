@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GIF Player (No Audio) – Folder List + Seekbar</title>
+  <style>
+    #canvas {
+      width: 640px;   /* CSS로 고정 */
+      height: 640px;
+      background: black;
+    }
+    #playviewer {
+        width: 100%;
+        height: 100%;
+        min-width: 600px;   /* 최소 크기 지정 */
+        min-height: 800px;
+    }
+    :root{
+      --bg:#0f172a;         /* slate-900 */
+      --panel:#111827;      /* gray-900 */
+      --card:#1f2937;       /* gray-800 */
+      --text:#e5e7eb;       /* gray-200 */
+      --muted:#94a3b8;      /* slate-400 */
+      --accent:#22d3ee;     /* cyan-400 */
+      --accent-2:#38bdf8;   /* sky-400 */
+      --border:#334155;     /* slate-700 */
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, sans-serif;
+    }
+    .app{display:grid; grid-template-columns: 300px 1fr; height:100vh;}
+    .sidebar{border-right:1px solid var(--border); background:var(--panel); padding:12px; overflow:auto}
+    .content{display:grid; grid-template-rows: 1fr auto;}
+    .topbar{display:flex; gap:8px; align-items:center; padding:10px; border-bottom:1px solid var(--border); background:var(--panel)}
+    .list{display:flex; flex-direction:column; gap:6px; margin-top:8px}
+    .item{padding:8px 10px; border:1px solid var(--border); border-radius:12px; background:var(--card); cursor:pointer; display:flex; align-items:center; gap:8px}
+    .item:hover{outline:2px solid var(--accent);}
+    .item.active{outline:2px solid var(--accent-2)}
+    .thumb{width:40px; height:40px; border-radius:8px; object-fit:cover; background:#000}
+    .grow{flex:1}
+    .dim{color:var(--muted)}
+    .viewer{display:grid; place-items:center; padding:10px}
+    canvas{max-width:100%; max-height:100%; background:#000; border-radius:16px; box-shadow:0 10px 30px rgb(0 0 0 / 0.3)}
+    .controls{display:flex; gap:10px; align-items:center; padding:12px; border-top:1px solid var(--border); background:var(--panel)}
+    .btn{appearance:none; border:1px solid var(--border); background:var(--card); color:var(--text); padding:8px 12px; border-radius:12px; cursor:pointer}
+    .btn:disabled{opacity:.5; cursor:not-allowed}
+    .range{flex:1}
+    input[type="range"]{width:100%}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#000; border:1px solid var(--border); border-radius:6px; padding:2px 6px; color:var(--muted)}
+    @media (max-width:900px){ .app{grid-template-columns:1fr} .sidebar{height:40vh} .content{height:60vh} }
+  </style>
+</head>
+<body >
+  <div class="app">
+    <aside class="sidebar">
+      <h2 style="margin:0 0 8px 0; font-weight:700">GIF 목록</h2>
+      <div style="display:flex; gap:6px; flex-wrap:wrap">
+        <label class="btn" title="로컬 폴더에서 불러오기">
+          폴더 불러오기
+          <input id="folderPicker" type="file" webkitdirectory multiple accept="image/gif" style="display:none"/>
+        </label>
+        <button id="refreshServer" class="btn" title="/gifs/ 서버 폴더 새로고침">/gifs/ 스캔</button>
+      </div>
+      <p class="dim" style="margin:8px 0 0">• 로컬: “폴더 불러오기”로 컴퓨터 안의 GIF 폴더를 선택하세요.<br>• 서버: 사이트에 <span class="kbd">/gifs/</span> 경로가 있다면 “/gifs/ 스캔”을 누르세요.</p>
+      <div id="gifList" class="list"></div>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <div class="grow">
+          <div id="title" style="font-weight:700">선택된 GIF 없음</div>
+          <div id="meta" class="dim">—</div>
+        </div>
+        <div class="dim">스페이스: <span class="kbd">재생/일시정지</span></div>
+      </div>
+
+      <div id="playviewer"  class="viewer"><canvas  id="canvas" ></canvas></div>
+
+      <div class="controls">
+        <button id="playPause" class="btn" disabled>재생</button>
+        <input id="progress" class="range" type="range" min="0" max="0" value="0" step="1" disabled>
+        <div id="time" class="dim">00:00 / 00:00</div>
+        <label class="btn" title="반복 재생">
+          <input id="loop" type="checkbox" checked> 루프
+        </label>
+        <label class="btn" title="재생 속도">
+          속도
+          <select id="speed">
+            <option value="1" selected>1.0×</option>
+            <option value="0.5">0.5×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2.0×</option>
+          </select>
+        </label>
+      </div>
+    </main>
+  </div>
+
+  <script>
+  // --- Utilities -----------------------------------------------------------
+  const $ = (sel, el=document) => el.querySelector(sel);
+  const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+  const fmtTime = ms => {
+    const s = Math.floor(ms/1000), m = Math.floor(s/60), r = s%60;
+    return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
+  };
+
+  // --- State ---------------------------------------------------------------
+  const state = {
+    current: null,       // { name, url, frames, durations, total, width, height }
+    playing: false,
+    frame: 0,
+    speed: 1,
+    loop: true,
+    raf: null,
+    lastTick: 0,
+    acc: 0,
+  };
+
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+ 
+ 
+  // GIF 한 프레임 그리기
+
+  // --- GIF Loading via ImageDecoder (modern browsers) ----------------------
+async function loadGifFromURL(url, name){
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('GIF fetch 실패: ' + res.status);
+    const blob = await res.blob();
+
+    // ✅ Blob → ArrayBuffer 변환 필요
+    const buffer = await blob.arrayBuffer();
+
+    if ('ImageDecoder' in window) {
+        const type = blob.type || 'image/gif';
+        const decoder = new ImageDecoder({data: buffer, type});
+        await decoder.tracks.ready;
+        const track = decoder.tracks.selectedTrack;
+        const frameCount = track.frameCount;
+
+        const frames = new Array(frameCount);
+        const durations = new Array(frameCount);
+        let total = 0;
+
+        for (let i=0; i<frameCount; i++) {
+          const {image, duration} = await decoder.decode({frameIndex:i});
+          const bmp = await createImageBitmap(image);
+          frames[i] = bmp;
+          durations[i] = duration || 100;
+          total += durations[i];
+          image.close && image.close();
+        }
+
+        const width = frames[0].width;
+        const height = frames[0].height;
+        
+
+        state.current = { name, url, frames, durations, total, width, height };
+        fitCanvas(state.current.width, state.current.height);
+        state.frame = 0; state.acc = 0;
+        updateUIForCurrent();
+        drawFrame(0);
+        return;
+    }
+
+    // Fallback: just draw animated <img> (no real seek). We still show fake bar.
+  
+  }
+
+  function fitCanvas(w, h){
+    // Keep aspect ratio while fitting into current canvas element size
+    const maxW = canvas.clientWidth || 640;
+    const maxH = canvas.clientHeight || 360;
+    const r = Math.min(maxW / w, maxH / h);
+    canvas.width = Math.round(w * r);
+    canvas.height = Math.round(h * r);
+  }
+
+  function drawFrame(i){
+    const cur = state.current; if(!cur) return;
+    const frame = cur.frames[i] || cur.frames[0];
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.drawImage(frame, canvas.width/2-cur.width/2, canvas.height/2-cur.height/2,  cur.width, cur.height );
+    $('#progress').value = String(i);
+    $('#time').textContent = `${fmtTime(elapsedUntil(i, cur.durations))} / ${fmtTime(cur.total)}`;
+  }
+
+  function elapsedUntil(i, durations){
+    let m=0; for(let k=0;k<i;k++) m+=durations[k]||0; return m;
+  }
+
+  // --- Playback ------------------------------------------------------------
+  function play(){
+    if(!state.current) return;
+    state.playing = true;
+    $('#playPause').textContent = '일시정지';
+    state.lastTick = performance.now();
+    tick();
+  }
+  function pause(){
+    state.playing = false;
+    $('#playPause').textContent = '재생';
+    cancelAnimationFrame(state.raf);
+  }
+
+  function tick(){
+    if(!state.playing) return;
+    const now = performance.now();
+    const dt = (now - state.lastTick) * state.speed; // speed factor
+    state.lastTick = now;
+    state.acc += dt;
+
+    const cur = state.current;
+    let i = state.frame;
+    let need = cur.durations[i] || 100;
+
+    while (state.acc >= need){
+      state.acc -= need;
+      i++;
+      if (i >= cur.frames.length){
+        if ($('#loop').checked){ i = 0; }
+        else { i = cur.frames.length-1; pause(); break; }
+      }
+      need = cur.durations[i] || 100;
+    }
+
+    state.frame = i;
+    drawFrame(i);
+    state.raf = requestAnimationFrame(tick);
+  }
+
+  // --- UI Wiring -----------------------------------------------------------
+  function updateUIForCurrent(){
+    const cur = state.current; const has = !!cur;
+    $('#playPause').disabled = !has; $('#progress').disabled = !has;
+    if(!has){ $('#title').textContent = '선택된 GIF 없음'; $('#meta').textContent = '—'; return; }
+    $('#title').textContent = cur.name;
+    $('#meta').textContent = `${cur.width}×${cur.height}px · ${cur.frames.length} 프레임 · ${fmtTime(cur.total)}`;
+    $('#progress').max = String(Math.max(0, cur.frames.length-1));
+    $('#progress').value = '0';
+  }
+
+  $('#playPause').addEventListener('click', () => state.playing ? pause() : play());
+  $('#progress').addEventListener('input', e=>{ state.frame = Number(e.target.value); state.acc = 0; drawFrame(state.frame); });
+  $('#loop').addEventListener('change', ()=>{});
+  $('#speed').addEventListener('change', e=>{ state.speed = Number(e.target.value)||1; });
+
+  document.addEventListener('keydown', e=>{
+    if(e.code==='Space'){ e.preventDefault(); if(state.playing) pause(); else play(); }
+    if(e.code==='ArrowRight'){ step(1); }
+    if(e.code==='ArrowLeft'){ step(-1); }
+  });
+  function step(d){ if(!state.current) return; pause(); state.frame = Math.max(0, Math.min(state.current.frames.length-1, state.frame+d)); drawFrame(state.frame); }
+
+  // --- List population: Local folder & Server /gifs/ ----------------------
+  const listEl = document.getElementById('gifList');
+
+  function addListItem(name, url, thumbURL){
+    const li = document.createElement('div'); li.className = 'item';
+    const img = document.createElement('img'); img.className='thumb'; img.src = thumbURL || url; li.appendChild(img);
+    const span = document.createElement('div'); span.className='grow'; span.textContent = name; li.appendChild(span);
+    const small = document.createElement('div'); small.className='dim'; small.textContent = 'GIF'; li.appendChild(small);
+
+    li.addEventListener('click', async ()=>{
+      $$('.item', listEl).forEach(x=>x.classList.remove('active')); li.classList.add('active');
+      pause(); await loadGifFromURL(url, name); play();
+    });
+    listEl.appendChild(li);
+  }
+
+  // Local folder (works without server listing)
+  document.getElementById('folderPicker').addEventListener('change', (ev)=>{
+    listEl.innerHTML = '';
+    const files = Array.from(ev.target.files).filter(f=>/\.gif$/i.test(f.name));
+    if(files.length===0){ listEl.innerHTML = '<div class="dim">GIF가 없습니다.</div>'; return; }
+    files.sort((a,b)=> a.name.localeCompare(b.name, 'ko'));
+    for(const f of files){
+      const url = URL.createObjectURL(f);
+      addListItem(f.name, url);
+    }
+  });
+
+  // Server folder: try JSON index, then try directory listing scrape
+  document.getElementById('refreshServer').addEventListener('click', async ()=>{
+    listEl.innerHTML = '<div class="dim">/gifs/ 스캔 중…</div>';
+    const base = '/gifs/';
+    let items = [];
+
+    // 1) Try /gifs/index.json  => ["a.gif", "b.gif", ...]
+    try{
+      const r = await fetch(base + 'index.json', {cache:'no-store'});
+      if(r.ok){ const arr = await r.json(); items = arr.filter(x=>/\.gif$/i.test(x)).map(x=>({name:x, url: base + x})); }
+    }catch{}
+
+    // 2) If empty, try scraping autoindex HTML
+    if(items.length===0){
+      try{
+        const r = await fetch(base, {cache:'no-store'});
+        if(r.ok){
+          const html = await r.text();
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          const anchors = Array.from(doc.querySelectorAll('a'));
+          for(const a of anchors){
+            const href = a.getAttribute('href')||'';
+            if(/\.gif$/i.test(href)) items.push({name: decodeURIComponent(href.split('/').pop()), url: base + href});
+          }
+        }
+      }catch{}
+    }
+
+    listEl.innerHTML = '';
+    if(items.length===0){ listEl.innerHTML = '<div class="dim">/gifs/ 폴더를 찾지 못했거나, 목록 제공이 비활성입니다.\nindex.json을 두거나, 서버 디렉터리 listing을 켜주세요.</div>'; return; }
+
+    items.sort((a,b)=> a.name.localeCompare(b.name, 'ko'));
+    for(const it of items){ addListItem(it.name, it.url); }
+  });
+
+  // Initial state
+  updateUIForCurrent();
+  </script>
+</body>
+</html>
