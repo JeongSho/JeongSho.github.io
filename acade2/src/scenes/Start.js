@@ -18,6 +18,9 @@ export class Start extends Phaser.Scene {
     lives = 3;   // 기본 라이프
     lifeText;    
 
+   // dcount = 0;
+   // dcounttext;
+
     isPaused = false;  // 물리엔진 정지 여부 플래그
 
      markers = [
@@ -94,7 +97,7 @@ export class Start extends Phaser.Scene {
         });
 
         this.ship.play('fly');
-
+        this.children.bringToTop(this.ship);   // obj1을 가장 위로
 
          
        this.music = this.sound.add('theme');
@@ -333,7 +336,7 @@ export class Start extends Phaser.Scene {
                 });
 
                  // 일정 확률로 미사일 발사
-                if (Phaser.Math.Between(1, 5) === 1) {   // 20% 확률
+                if (Phaser.Math.Between(1, 3) == 1) {   // 20% 확률
                     this.enemyFire(emi);
                 }
     }
@@ -348,7 +351,21 @@ export class Start extends Phaser.Scene {
         bullet.setTint(0xff0000); // 빨간색 미사일
         if (!this.enemyBullets) this.enemyBullets = [];
         this.enemyBullets.push(bullet);
-         this.sound.play('sfx', this.markers[8]);
+         this.sound.play('sfx', this.markers[0]);
+
+          // 배열 순회하면서 화면 밖으로 나간 미사일 제거
+        this.enemyBullets = this.enemyBullets.filter(misa => {
+            
+            if (misa.x < 0) {
+                
+                //if(this.dcounttext) this.dcounttext.destroy(); 
+                //this.dcount++;
+                //this.dcounttext = this.add.text(460, 600, (this.dcount), { font: '46px Courier', fill: '#ff0000' });
+                misa.destroy();
+                return false;  // 배열에서 제거
+            }
+            return true;
+        });
     }
 
    arrs() {
