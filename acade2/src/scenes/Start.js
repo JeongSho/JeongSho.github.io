@@ -15,6 +15,9 @@ export class Start extends Phaser.Scene {
      // P 키 추가
     keyP;
 
+    lives = 3;   // 기본 라이프
+    lifeText;    
+
     isPaused = false;  // 물리엔진 정지 여부 플래그
 
      markers = [
@@ -68,7 +71,8 @@ export class Start extends Phaser.Scene {
         });
        
         
-        
+       
+
 
         this.physics.world.setBounds(0, 0, 1280, 720);
        
@@ -119,6 +123,8 @@ export class Start extends Phaser.Scene {
                 this.gameOk = true;  //게임시작
 
                 this.bgm(true);
+
+                this.lifeText = this.add.text(900, 25, "LIFE : " + this.lives, { font: '46px Courier', fill: '#00ff00' });
             }
        })
 
@@ -232,11 +238,58 @@ export class Start extends Phaser.Scene {
         this.checkCollisions();
         this.background.tilePositionX += 10;
          
+        this.checkPlayerCollisions();
+
         
 
     }
 
-    
+    checkPlayerCollisions() {
+        // 적기와 충돌
+        for (let j = this.err.length - 1; j >= 0; j--) {
+            const emi = this.err[j];
+            if (emi && Phaser.Geom.Intersects.RectangleToRectangle(this.ship.getBounds(), emi.getBounds())) {
+                this.playerHit();
+                emi.destroy();
+                this.err.splice(j, 1);
+            }
+        }
+
+        // 적 미사일과 충돌
+        if (this.enemyBullets) {
+            for (let k = this.enemyBullets.length - 1; k >= 0; k--) {
+                const bullet = this.enemyBullets[k];
+                if (bullet && Phaser.Geom.Intersects.RectangleToRectangle(this.ship.getBounds(), bullet.getBounds())) {
+                    this.playerHit();
+                    bullet.destroy();
+                    this.enemyBullets.splice(k, 1);
+                }
+            }
+        }
+    }
+
+    playerHit() {       //---------------- 플레이어 히트...
+        this.lives--;
+        this.lifeText.setText("LIFE : " + this.lives);
+
+        // 폭발 이펙트
+        const boom = this.add.sprite(this.ship.x, this.ship.y, 'boom').setScale(3.0);
+        boom.play('explode');
+        boom.on('animationcomplete', () => boom.destroy());
+
+        if (this.lives <= 0) {
+            this.ship.destroy();
+            this.add.text(400, 300, "GAME OVER", { font: '72px Courier', fill: '#ff0000' });
+          //  this.physics.pause();
+            this.music.stop();
+            this.gameOk = false;
+            this.sound.play('sfx', this.markers[6]);
+            this.sound.play('sfx', this.markers[7]);
+        } else {
+             this.sound.play('sfx', this.markers[1]);
+        }
+    }
+
     
     fireMissile() {
         const mi = this.physics.add
@@ -278,8 +331,25 @@ export class Start extends Phaser.Scene {
                        
                     }
                 });
+
+                 // 일정 확률로 미사일 발사
+                if (Phaser.Math.Between(1, 5) === 1) {   // 20% 확률
+                    this.enemyFire(emi);
+                }
     }
-  
+    
+
+    enemyFire(enemy) {
+        const bullet = this.physics.add
+            .sprite(enemy.x, enemy.y, 'misa')
+            .setVelocityX(-600)
+            .setScale(0.2);
+        bullet.play('fight');
+        bullet.setTint(0xff0000); // 빨간색 미사일
+        if (!this.enemyBullets) this.enemyBullets = [];
+        this.enemyBullets.push(bullet);
+         this.sound.play('sfx', this.markers[8]);
+    }
 
    arrs() {
         // 배열 순회하면서 화면 밖으로 나간 미사일 제거
