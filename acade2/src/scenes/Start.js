@@ -1,0 +1,344 @@
+export class Start extends Phaser.Scene {
+    cursors;
+    ship;
+    gameOk = false;
+    ScoreText;
+    level2 = 0;
+    err=[];
+    arr=[];
+    chk = false;
+    levelText;
+    arrGroup;
+    eshipGroup;
+    music;
+    ptext;
+     // P 키 추가
+    keyP;
+
+    isPaused = false;  // 물리엔진 정지 여부 플래그
+
+     markers = [
+        { name: 'alien death', start: 1, duration: 1.0, config: {} },
+        { name: 'boss hit', start: 3, duration: 0.5, config: {} },
+        { name: 'escape', start: 4, duration: 3.2, config: {} },
+        { name: 'meow', start: 8, duration: 0.5, config: {} },
+        { name: 'numkey', start: 9, duration: 0.1, config: {} },
+        { name: 'ping', start: 10, duration: 1.0, config: {} },
+        { name: 'death', start: 12, duration: 4.2, config: {} },
+        { name: 'shot', start: 17, duration: 1.0, config: {} },
+        { name: 'squit', start: 19, duration: 0.3, config: {} }
+    ];
+
+
+
+    constructor() {
+        super('Start');
+    }
+
+    preload() {
+        this.load.image('background', 'assets/space.png');
+        this.load.image('logo', 'assets/phaser.png');
+        this.load.image('efly', 'assets/efly.png');
+        this.load.spritesheet('misa', 'assets/misa.png', { frameWidth: 280, frameHeight:53 });
+
+        //  The ship sprite is CC0 from https://ansimuz.itch.io - check out his other work!
+        this.load.spritesheet('ship', 'assets/spaceship.png', { frameWidth: 176, frameHeight: 96 });
+        this.load.spritesheet('boom', 'assets/explosion.png', { frameWidth: 64, frameHeight: 64, endFrame: 23 });
+
+        this.load.audio('sfx', [
+            'assets/audio/fx_mixdown.ogg',
+            'assets/audio/fx_mixdown.mp3'
+        ]);
+
+         this.load.audio('theme', [
+            'assets/audio/gemattack-maintheme.m4a'
+        ]);
+       
+
+    }
+
+    create() {
+
+       this.anims.create({
+            key: 'explode',
+            frames: this.anims.generateFrameNumbers('boom', { start: 0, end: 23 }), // 0~23프레임 사용
+            frameRate: 90,
+            repeat: 0 // 1번만 재생
+            
+        });
+       
+        
+        
+
+        this.physics.world.setBounds(0, 0, 1280, 720);
+       
+        this.cursors = this.input.keyboard.createCursorKeys();
+
+        this.background = this.add.tileSprite(640, 360, 1280, 720, 'background');
+
+        const logo = this.add.image(640, 200, 'logo');
+
+        this.ship = this.physics.add.sprite(640, 360, 'ship')
+             .setBounce(0.1)
+            .setCollideWorldBounds(true);
+
+        this.ship.anims.create({
+            key: 'fly',
+            frames: this.anims.generateFrameNumbers('ship', { start: 0, end: 2 }),
+            frameRate: 15,
+            repeat: -1
+        });
+
+        this.ship.play('fly');
+
+
+         
+       this.music = this.sound.add('theme');
+
+       //this.sound.setListenerPosition(400, 300); 
+  
+       this.tweens.add({
+            targets: logo,
+            y: 400,
+            duration: 1500,
+            ease: 'Sine.inOut',
+            yoyo: true,
+            loop: 0,   // 1번 왕복 (yoyo=true니까 내려갔다 올라옴)
+            onComplete: () => {
+                
+                logo.destroy();   // 트윈 끝나면 로고 제거
+                 // Phaser 게임 캔버스에 포커스 주기
+                this.game.canvas.setAttribute('tabindex', '0'); 
+             
+               // 키보드 입력 다시 활성화
+                this.input.keyboard.enabled = true;
+
+                // 캔버스 포커스 보장
+                this.game.canvas.focus();
+
+                this.gameOk = true;  //게임시작
+
+                this.bgm(true);
+            }
+       })
+
+        this.arrGroup = this.physics.add.group();
+        this.eshipGroup = this.physics.add.group();
+
+        // 충돌 설정
+        this.physics.add.collider(this.arrGroup, this.eshipGroup, (mi, emi) => {
+            mi.destroy();
+            emi.destroy();
+        });
+
+         this.ScoreText = this.add.text(250, 25, "SCORE : ", { font: '46px Courier', fill: '#ff0000' });
+
+
+          // P 키 추가
+            this.keyP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+
+            this.isPaused = false;  // 물리엔진 정지 여부 플래그
+    }
+
+    bgm(bl) {
+        if (bl === true) {
+                this.music.play({
+                        loop: true,
+                            source: {
+                                //x: 400,
+                                //y: 300,
+                                refDistance: 50,
+                                follow: this.image
+                            }
+                 });
+
+                        
+            
+                   
+            
+        } else {
+           
+                this.music.pause();
+               
+        }
+        
+    }
+
+    update() {
+        
+        if (Phaser.Input.Keyboard.JustDown(this.keyP)) {
+            if (this.isPaused) {
+                this.physics.resume();
+                this.isPaused = false;
+                 this.bgm(true);
+                  if(this.ptext) this.ptext.destroy();
+                  
+               
+            } else {
+                this.physics.pause();
+                this.isPaused = true;
+                 this.bgm(false);
+                
+                 if(this.ptext) this.ptext.destroy();
+                  this.ptext = this.add.text(550, 260, "Pause ! ", { font: '60px Courier', fill: '#ff0000' });
+            }
+        }
+
+        if(this.gameOk == false || this.isPaused == true ) return;
+         
+         this.ship.setVelocity(0);
+
+        if (this.cursors.left.isDown)
+        {
+            this.ship.setVelocityX(-300);
+        }
+        else if (this.cursors.right.isDown)
+        {
+            this.ship.setVelocityX(300);
+        }
+
+        if (this.cursors.up.isDown)
+        {
+            this.ship.setVelocityY(-300);
+        }
+        else if (this.cursors.down.isDown)
+        {
+            this.ship.setVelocityY(300);
+        }
+       
+       
+
+        if (this.cursors.space.isDown && this.chk == false) {
+           this.fireMissile();
+           this.chk = true;
+            this.sound.play('sfx', this.markers[0]);
+            
+        }
+        
+        if (!this.cursors.space.isDown) {
+            this.chk = false;
+           
+           
+        }
+
+        if(Phaser.Math.Between(1, 30) ==5) {
+             var value = Phaser.Math.Between(50, 700); // Returns a value >= min and <= max
+            this.enemy(1200, value);
+           
+        }
+
+        this.arrs();
+        this.errs();
+        this.checkCollisions();
+        this.background.tilePositionX += 10;
+         
+        
+
+    }
+
+    
+    
+    fireMissile() {
+        const mi = this.physics.add
+                .sprite(this.ship.x, this.ship.y, 'misa')
+                .setVelocityX(5300)
+                .setScale(0.3);
+
+                // 바운드 체크 가능하게
+                mi.body.onWorldBounds = true;
+
+                mi.anims.create({
+                    key: 'fight',
+                    frames: this.anims.generateFrameNumbers('misa', { start: 0, end: 4 }),
+                    frameRate: 15,
+                    repeat: -1
+                });
+                mi.play('fight');
+                 this.arr.push(mi);
+               
+    }
+
+    enemy(xx, yy) {
+        const emi = this.physics.add
+                .image(xx,yy, 'efly')
+                .setVelocityX(-300)
+                .setVelocityY(Phaser.Math.Between(-130, 130))
+                .setScale(2.3);
+
+                // 바운드 체크 가능하게
+                emi.body.onWorldBounds = true;
+                
+                 this.err.push(emi);
+              
+
+                // 자기 자신이 바운드를 벗어나면 파괴
+                this.physics.world.on('worldbounds', (body) => {
+                    if (body.gameObject === emi) {
+                       emi.destroy();
+                       
+                    }
+                });
+    }
+  
+
+   arrs() {
+        // 배열 순회하면서 화면 밖으로 나간 미사일 제거
+        this.arr = this.arr.filter(mi => {
+            
+            if (mi.x > this.sys.game.config.width) {
+                
+               
+                mi.destroy();
+                return false;  // 배열에서 제거
+            }
+            return true;
+        });
+    }
+
+    errs() {
+        // 배열 순회하면서 화면 밖으로 나간 미사일 제거
+        this.err = this.err.filter(emi => {
+            if (emi.x < 0) {
+                
+              
+                emi.destroy();
+                return false;  // 배열에서 제거
+            }
+            return true;
+        });
+    }
+
+    
+    checkCollisions() {
+    for (let i = this.arr.length - 1; i >= 0; i--) {
+        for (let j = this.err.length - 1; j >= 0; j--) {
+            const mi = this.arr[i];
+            const emi = this.err[j];
+
+            if (mi && emi && Phaser.Geom.Intersects.RectangleToRectangle(mi.getBounds(), emi.getBounds())) {
+               // 폭발 스프라이트 생성
+                const boom = this.add.sprite(emi.x, emi.y, 'boom');
+                boom.play('explode');
+                boom.setScale(2.0);
+
+                // 애니메이션 끝나면 자동 제거
+                boom.on('animationcomplete', () => {
+                    boom.destroy();
+                });
+
+                this.sound.play('sfx', this.markers[7]);               
+                if(this.levelText2) this.levelText2.destroy(); 
+                this.level2++;
+                this.levelText2 = this.add.text(460, 25, (this.level2*10), { font: '46px Courier', fill: '#ff0000' });
+                mi.destroy();
+                emi.destroy();
+
+                // 배열에서 제거
+                this.arr.splice(i, 1);
+                this.err.splice(j, 1);
+                break; // 같은 mi가 여러 emi와 중복 충돌 방지
+            }
+        }
+    }
+}
+}
