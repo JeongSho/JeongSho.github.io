@@ -35,10 +35,11 @@ export class Start extends Phaser.Scene {
         { name: 'squit', start: 19, duration: 0.3, config: {} }
     ];
 
-
+    
 
     constructor() {
         super('Start');
+       
     }
 
     preload() {
@@ -73,7 +74,11 @@ export class Start extends Phaser.Scene {
             
         });
        
-        
+         this.centreX = this.scale.width * 0.5;
+        this.centreY = this.scale.height * 0.5;
+        this.pathHeight = this.pathHeightMax;
+
+        this.cameras.main.setBackgroundColor(0x00ff00);
        
 
 
@@ -127,7 +132,13 @@ export class Start extends Phaser.Scene {
 
                 this.bgm(true);
 
-                this.lifeText = this.add.text(900, 25, "LIFE : " + this.lives, { font: '46px Courier', fill: '#00ff00' });
+               
+                this.lifeText =  this.add.text(900,25 , "LIFE : " + this.lives, {
+                    fontFamily: 'Arial Black', fontSize: 42, color: '#ffffff',
+                    stroke: '#000000', strokeThickness: 4,
+                    align: 'center'
+                });
+                
             }
        })
 
@@ -140,7 +151,12 @@ export class Start extends Phaser.Scene {
             emi.destroy();
         });
 
-         this.ScoreText = this.add.text(250, 25, "SCORE : ", { font: '46px Courier', fill: '#ff0000' });
+      
+         this.ScoreText =  this.add.text(140,25 , "SCORE : " , {
+                    fontFamily: 'Arial Black', fontSize: 42, color: '#ff0000',
+                    stroke: '#aaff00', strokeThickness: 4,
+                    align: 'left'
+                });
 
 
           // P 키 추가
@@ -172,7 +188,17 @@ export class Start extends Phaser.Scene {
         }
         
     }
-
+ 
+    inptext(st) {
+          // Create tutorial text
+        const text = this.add.text(this.centreX, this.centreY , st, {
+            fontFamily: 'Arial Black', fontSize: 70, color: '#ffffff',
+            stroke: '#000000', strokeThickness: 8,
+            align: 'center'
+        }).setOrigin(0.5);
+        return text;
+    }
+ 
     update() {
         
         if (Phaser.Input.Keyboard.JustDown(this.keyP)) {
@@ -186,10 +212,10 @@ export class Start extends Phaser.Scene {
             } else {
                 this.physics.pause();
                 this.isPaused = true;
-                 this.bgm(false);
+                this.bgm(false);
                 
-                 if(this.ptext) this.ptext.destroy();
-                  this.ptext = this.add.text(550, 260, "Pause ! ", { font: '60px Courier', fill: '#ff0000' });
+                if(this.ptext) this.ptext.destroy();
+                this.ptext = this.inptext("Pause ! ");
             }
         }
 
@@ -282,7 +308,12 @@ export class Start extends Phaser.Scene {
 
         if (this.lives <= 0) {
             this.ship.destroy();
-            this.add.text(400, 300, "GAME OVER", { font: '72px Courier', fill: '#ff0000' });
+            
+            this.add.text(this.centreX,this.centreY ,"GAME OVER" , {
+                    fontFamily: 'Arial Black', fontSize: 42, color: '#ff0000',
+                    stroke: '#aaff00', strokeThickness: 4,
+                    align: 'center'
+                }).setOrigin(0.5);
           //  this.physics.pause();
             this.music.stop();
             this.gameOk = false;
@@ -416,7 +447,12 @@ export class Start extends Phaser.Scene {
                 this.sound.play('sfx', this.markers[7]);               
                 if(this.levelText2) this.levelText2.destroy(); 
                 this.level2++;
-                this.levelText2 = this.add.text(460, 25, (this.level2*10), { font: '46px Courier', fill: '#ff0000' });
+               
+                this.levelText2 =  this.add.text(360,25 , (this.level2*10) , {
+                    fontFamily: 'Arial Black', fontSize: 42, color: '#ffffff',
+                    stroke: '#aaff00', strokeThickness: 4,
+                    align: 'left'
+                });
                 mi.destroy();
                 emi.destroy();
 
