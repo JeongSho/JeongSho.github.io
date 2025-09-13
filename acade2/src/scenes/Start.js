@@ -12,6 +12,7 @@ export class Start extends Phaser.Scene {
     eshipGroup;
     music;
     ptext;
+    gameover;
      // P 키 추가
     keyP;
 
@@ -74,7 +75,7 @@ export class Start extends Phaser.Scene {
             
         });
        
-         this.centreX = this.scale.width * 0.5;
+        this.centreX = this.scale.width * 0.5;
         this.centreY = this.scale.height * 0.5;
         this.pathHeight = this.pathHeightMax;
 
@@ -128,9 +129,7 @@ export class Start extends Phaser.Scene {
                 // 캔버스 포커스 보장
                 this.game.canvas.focus();
 
-                this.gameOk = true;  //게임시작
-
-                this.bgm(true);
+               
 
                
                 this.lifeText =  this.add.text(900,25 , "LIFE : " + this.lives, {
@@ -138,6 +137,14 @@ export class Start extends Phaser.Scene {
                     stroke: '#000000', strokeThickness: 4,
                     align: 'center'
                 });
+
+                // Create tutorial text
+                this.tutorialText = this.add.text(this.centreX, this.centreY, 'Tap to play!', {
+                    fontFamily: 'Arial Black', fontSize: 42, color: '#ffffff',
+                    stroke: '#000000', strokeThickness: 8,
+                    align: 'center'
+                }).setOrigin(0.5);
+                this.initInput();
                 
             }
        })
@@ -165,6 +172,60 @@ export class Start extends Phaser.Scene {
             this.isPaused = false;  // 물리엔진 정지 여부 플래그
     }
 
+
+    initInput() {
+      
+        this.input.once('pointerdown', () => {
+             this.gameOk = true;  //게임시작
+             this.tutorialText.destroy();   
+              this.bgm(true);
+        });
+    }
+
+    reinitInput() {
+        
+        this.input.once('pointerdown', () => {
+           
+            this.eshipGroup.destroy();
+            this.eshipGroup = this.physics.add.group();
+
+            this.gameover.destroy();
+             this.ship = this.physics.add.sprite(640, 360, 'ship')
+                .setBounce(0.1)
+                .setCollideWorldBounds(true);
+
+            this.ship.anims.create({
+                key: 'fly',
+                frames: this.anims.generateFrameNumbers('ship', { start: 0, end: 2 }),
+                frameRate: 15,
+                repeat: -1
+            });
+             this.gameOk = true;  //게임시작
+             this.tutorialText.destroy();   
+              this.bgm(true);
+              this.lifeText.destroy();
+              this.lives = 3;
+              this.lifeText =  this.add.text(900,25 , "LIFE : " + this.lives, {
+                    fontFamily: 'Arial Black', fontSize: 42, color: '#ffffff',
+                    stroke: '#000000', strokeThickness: 4,
+                    align: 'center'
+              });
+            if(this.levelText2) this.levelText2.destroy(); 
+            this.level2 = 0;
+               
+                
+        });
+    }
+
+    startGame() {
+       
+        this.physics.resume();
+        this.input.on('pointerdown', () => {
+            
+        });
+
+       
+    }
     bgm(bl) {
         if (bl === true) {
                 this.music.play({
@@ -201,7 +262,7 @@ export class Start extends Phaser.Scene {
  
     update() {
         
-        if (Phaser.Input.Keyboard.JustDown(this.keyP)) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyP) && this.gameOk == true) {
             if (this.isPaused) {
                 this.physics.resume();
                 this.isPaused = false;
@@ -309,7 +370,7 @@ export class Start extends Phaser.Scene {
         if (this.lives <= 0) {
             this.ship.destroy();
             
-            this.add.text(this.centreX,this.centreY ,"GAME OVER" , {
+            this.gameover = this.add.text(this.centreX,this.centreY ,"GAME OVER" , {
                     fontFamily: 'Arial Black', fontSize: 42, color: '#ff0000',
                     stroke: '#aaff00', strokeThickness: 4,
                     align: 'center'
@@ -319,6 +380,14 @@ export class Start extends Phaser.Scene {
             this.gameOk = false;
             this.sound.play('sfx', this.markers[6]);
             this.sound.play('sfx', this.markers[7]);
+
+             // Create tutorial text
+                this.tutorialText = this.add.text(this.centreX, this.centreY+50, 'Tap to play!', {
+                    fontFamily: 'Arial Black', fontSize: 42, color: '#ffffff',
+                    stroke: '#000000', strokeThickness: 8,
+                    align: 'center'
+                }).setOrigin(0.5);
+                this.reinitInput();   // 다시시작하기
         } else {
              this.sound.play('sfx', this.markers[1]);
         }
