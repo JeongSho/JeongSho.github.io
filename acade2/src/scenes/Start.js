@@ -200,6 +200,7 @@ export class Start extends Phaser.Scene {
                 frameRate: 15,
                 repeat: -1
             });
+             this.ship.play('fly');
              this.gameOk = true;  //게임시작
              this.tutorialText.destroy();   
               this.bgm(true);
