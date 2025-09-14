@@ -16,7 +16,7 @@ class Example extends Phaser.Scene
     preload ()
     {
         //this.load.setBaseURL('https://cdn.phaserfiles.com/v385');
-        this.load.spritesheet('dude', '/assets/pan.png', { frameWidth: 45, frameHeight: 94 });
+        this.load.spritesheet('dude', './assets/pan.png', { frameWidth: 45, frameHeight: 94 });
         this.load.atlas('tiles', 'assets/sets/platformer.png', 'assets/sets/platformer.json');
         this.load.atlas('menu', 'assets/button/button.png', 'assets/button/button.json');
         this.load.image('bg', 'assets/sets/background.png');
